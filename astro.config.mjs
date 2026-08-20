@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import icon from 'astro-icon';
 
 // The canonical origin. Every canonical URL, the sitemap and the robots.txt
 // derive from this single value — there is no other place a domain is written.
@@ -25,6 +26,10 @@ export default defineConfig({
     // React is loaded for exactly one island: the /book scheduler (Phase 3).
     // No content page ships a byte of it.
     react(),
+    // Icons compile to inline <svg> at build time — zero runtime JS. This
+    // replaces hand-drawn icon paths that were duplicated across Header,
+    // ContactButtons and StickyBar with one Phosphor-backed <Icon> component.
+    icon(),
     sitemap({
       changefreq: 'monthly',
       lastmod: new Date(),

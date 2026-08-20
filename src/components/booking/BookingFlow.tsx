@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { CheckIcon } from '@phosphor-icons/react/dist/csr/Check';
 
 import { publishedServices } from '@data/services';
 import { business } from '@data/business';
@@ -546,9 +547,7 @@ function Confirmation({ booking, onReset }: { booking: Booking; onReset: () => v
   return (
     <div className="mx-auto max-w-2xl text-center">
       <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-100">
-        <svg className="h-7 w-7 text-brand-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4l3.8 3.8 6.8-6.8a1 1 0 0 1 1.4 0Z" />
-        </svg>
+        <CheckIcon weight="bold" className="h-7 w-7 text-brand-700" aria-hidden="true" />
       </div>
 
       <h2 className="mt-6 text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">

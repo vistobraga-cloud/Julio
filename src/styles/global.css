@@ -1,27 +1,33 @@
 @import 'tailwindcss';
 
 /*
- * Self-hosted type. One file, latin subset only, 47KB, served from a stable
+ * Self-hosted type. One file, latin subset only, 24KB, served from a stable
  * path so the layout can preload it. Never a <link> to Google Fonts — that is
  * an extra origin, an extra connection and a third-party dependency on the
  * critical path.
  *
- * Source: @fontsource-variable/inter (files/inter-latin-wght-normal.woff2).
- * To update: npm update @fontsource-variable/inter, then re-copy the file.
+ * Manrope, not Inter. Inter is the default every AI-built site reaches for —
+ * it reads as generic SaaS chrome. Manrope's bold and extrabold cuts have
+ * real weight and a slightly warmer, sturdier geometry that fits a trades
+ * business better than a neutral interface font does, while staying just as
+ * legible at small sizes on a phone screen in a driveway.
+ *
+ * Source: @fontsource-variable/manrope (files/manrope-latin-wght-normal.woff2).
+ * To update: npm update @fontsource-variable/manrope, then re-copy the file.
  */
 @font-face {
-  font-family: 'Inter Variable';
+  font-family: 'Manrope Variable';
   font-style: normal;
   font-display: swap;
-  font-weight: 100 900;
-  src: url('/fonts/inter-latin-variable.woff2') format('woff2-variations');
+  font-weight: 200 800;
+  src: url('/fonts/manrope-latin-variable.woff2') format('woff2-variations');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
     U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @theme {
-  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Manrope Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* Ink: the structural neutral, matched to the gray in the wordmark. */
   --color-ink-50: #f7f8f8;
@@ -64,8 +70,6 @@
   --color-marine-950: #112837;
 
   --color-paper: #fbfbfa;
-
-  --radius-card: 0.75rem;
 }
 
 @layer base {
@@ -100,10 +104,15 @@
     border-radius: 2px;
   }
 
+  /* Tight tracking at display sizes. Weight is set per heading with
+     font-extrabold where it matters (H1s, section headers) rather than
+     forced here — a base-layer weight would be silently shadowed by the
+     font-bold utility already present on most headings in the markup. */
   h1,
   h2,
   h3 {
     text-wrap: balance;
+    letter-spacing: -0.02em;
   }
 
   p {

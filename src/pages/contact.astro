@@ -2,6 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Breadcrumbs from '@components/Breadcrumbs.astro';
 import Faq from '@components/Faq.astro';
+import Icon from '@components/icons/Icon.astro';
 
 import { business, areaNameList } from '@data/business';
 import { handyman } from '@data/handyman';
@@ -66,13 +67,9 @@ const schemaNodes = [faqPage(faqs)];
             data-cta-placement="contact-primary"
             class="flex items-center gap-4 rounded-xl bg-brand-600 px-5 py-4 text-white transition hover:bg-brand-700"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path
-                d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.4.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1l-2.3 2.2Z"
-              ></path>
-            </svg>
+            <Icon name="phone" size={22} />
             <span>
-              <span class="block text-lg font-bold">{phoneDisplay}</span>
+              <span class="block text-lg font-extrabold">{phoneDisplay}</span>
               <span class="block text-sm text-white/85">Call — fastest way to book</span>
             </span>
           </a>
@@ -83,13 +80,9 @@ const schemaNodes = [faqPage(faqs)];
             rel="noopener"
             class="flex items-center gap-4 rounded-xl border-2 border-marine-700 px-5 py-4 text-marine-700 transition hover:bg-marine-700 hover:text-white"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path
-                d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2Zm5.8 14.2c-.2.7-1.2 1.3-2 1.4-.5.1-1.2.1-3.9-1-3.3-1.4-5.4-4.7-5.6-4.9-.2-.2-1.3-1.8-1.3-3.4S5.8 6 6.2 5.6c.3-.3.6-.4.8-.4h.6c.2 0 .5 0 .7.5l1 2.4c.1.2.1.4 0 .6l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.4 1.8 2.3 1.2 1.1 2.2 1.4 2.5 1.6.3.1.5.1.6-.1l.9-1c.2-.2.4-.2.6-.1l2.3 1.1c.3.2.5.2.6.4.1.1.1.7-.1 1.4Z"
-              ></path>
-            </svg>
+            <Icon name="whatsapp" size={22} />
             <span>
-              <span class="block text-lg font-bold">WhatsApp</span>
+              <span class="block text-lg font-extrabold">WhatsApp</span>
               <span class="block text-sm opacity-80">Best for sending a photo of the box</span>
             </span>
           </a>

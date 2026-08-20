@@ -1,0 +1,20 @@
+---
+import { Icon as AstroIcon } from 'astro-icon/components';
+import { icons, type IconName } from './registry';
+
+/**
+ * Thin wrapper over astro-icon so call sites use a semantic name ("phone")
+ * rather than an Iconify string ("ph:phone-fill"). Swapping icon sets later
+ * means editing registry.ts once, not every component that renders a phone
+ * glyph.
+ */
+interface Props {
+  name: IconName;
+  class?: string;
+  size?: number;
+}
+
+const { name, class: className, size = 18 } = Astro.props;
+---
+
+<AstroIcon name={icons[name]} class={className} width={size} height={size} aria-hidden="true" />
