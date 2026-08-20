@@ -1,14 +1,19 @@
 ---
-import { whatsappHref } from '@lib/contact';
-import { BOOK_PATH } from '@lib/nav';
+import { whatsappHref, telHref, phoneDisplay } from '@lib/contact';
 import Icon from '@components/icons/Icon.astro';
 
 /**
  * Mobile-only sticky action bar.
  *
  * Phones are the majority of traffic for this kind of search, and the visitor
- * is usually standing next to the box they need assembled. The bar keeps
- * booking and WhatsApp one thumb-reach away at any scroll depth.
+ * is usually standing next to the box they need assembled. The bar keeps the
+ * call one thumb-reach away at any scroll depth.
+ *
+ * The primary used to be "Book Now", pointing at the four-step form. That put
+ * the site's longest path behind its largest button, on the device where most
+ * of the traffic lands, while every other page said "call me". Calling is the
+ * shortest distance between a person standing next to a box and a booked job,
+ * so calling is what the button does.
  *
  * Hidden from md up, where the header CTA is already visible.
  */
@@ -20,25 +25,26 @@ const { message } = Astro.props;
 ---
 
 <div
-  class="fixed inset-x-0 bottom-0 z-40 border-t border-ink-200 bg-white/95 backdrop-blur-sm md:hidden"
+  class="fixed inset-x-0 bottom-0 z-40 border-t border-ink-900/10 bg-paper/90 backdrop-blur-md md:hidden"
   style="padding-bottom: env(safe-area-inset-bottom)"
 >
-  <div class="grid grid-cols-3 gap-2 p-2">
+  <div class="grid grid-cols-3 gap-2 p-2.5">
     <a
-      href={BOOK_PATH}
+      href={telHref}
       data-cta-placement="sticky-bar"
-      class="col-span-2 inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-3 text-base font-bold text-white"
+      class="col-span-2 inline-flex items-center justify-center gap-2 rounded-full bg-brand-500 px-4 py-3.5 text-base font-extrabold text-white shadow-lg shadow-brand-900/25"
     >
-      Book Now
+      <Icon name="phone" size={17} />
+      {phoneDisplay}
     </a>
 
     <a
       href={whatsappHref(message)}
       data-cta-placement="sticky-bar"
       rel="noopener"
-      class="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-marine-700 px-3 py-3 text-sm font-bold text-marine-700"
+      class="inline-flex items-center justify-center gap-1.5 rounded-full border border-ink-900/15 bg-white px-3 py-3.5 text-sm font-bold text-ink-900"
     >
-      <Icon name="whatsapp" />
+      <Icon name="whatsapp" size={17} />
       Chat
     </a>
   </div>

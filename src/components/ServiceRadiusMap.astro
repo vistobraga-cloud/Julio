@@ -1,0 +1,191 @@
+---
+import { business, radiusDisplay } from '@data/business';
+
+/**
+ * The service area, drawn.
+ *
+ * Not a map — a map means tiles, an external host and a key, and this site
+ * has no third-party requests on any page. This is a distance diagram: rings
+ * at 15, 35 and 50 miles from Fall River, with real towns placed at their
+ * true bearing and distance. It answers "does he come out to me" in about a
+ * second, which is the question this section exists to answer.
+ *
+ * Positions are computed from bearing and distance rather than hand-placed,
+ * so the picture cannot drift away from the numbers it claims to show. The
+ * radius itself comes from business.ts like every other fact on the site.
+ *
+ * Hidden below md by the caller: at phone widths the labels would be six
+ * pixels tall, and the county list underneath carries the same information
+ * in a form that reads well small.
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+const CX = 260;
+const CY = 262;
+/** Pixels per mile, chosen so the 50-mile ring lands at r = 180. */
+const SCALE = 3.6;
+
+/** Bearing in degrees clockwise from north, and straight-line miles out. */
+const places = [
+  { name: 'Taunton', miles: 13, bearing: 340 },
+  { name: 'New Bedford', miles: 15, bearing: 150 },
+  { name: 'Providence', miles: 18, bearing: 295 },
+  { name: 'Newport', miles: 20, bearing: 200 },
+  { name: 'Brockton', miles: 30, bearing: 355 },
+  { name: 'Warwick', miles: 30, bearing: 265 },
+  { name: 'Plymouth', miles: 35, bearing: 70 },
+  { name: 'Quincy', miles: 40, bearing: 20 },
+  { name: 'Boston', miles: 50, bearing: 15 },
+  { name: 'Worcester', miles: 50, bearing: 312 },
+  { name: 'New London', miles: 58, bearing: 250, beyond: true },
+  { name: 'Hyannis', miles: 55, bearing: 115, beyond: true },
+];
+
+const rings = [
+  { miles: 15, label: 'Next day, usually' },
+  { miles: 35, label: null },
+  { miles: 50, label: null },
+];
+
+const toPoint = (miles: number, bearing: number) => {
+  const rad = (bearing * Math.PI) / 180;
+  return {
+    x: CX + miles * SCALE * Math.sin(rad),
+    y: CY - miles * SCALE * Math.cos(rad),
+  };
+};
+
+const plotted = places.map((place) => {
+  const { x, y } = toPoint(place.miles, place.bearing);
+  // Labels flip side at the centre line so they never run back over the dot.
+  const right = x >= CX;
+  return {
+    ...place,
+    x,
+    y,
+    labelX: right ? x + 9 : x - 9,
+    anchor: right ? 'start' : 'end',
+  };
+});
+---
+
+<figure class={className}>
+  <svg
+    viewBox="0 0 520 500"
+    role="img"
+    aria-labelledby="radius-map-title radius-map-desc"
+    class="h-auto w-full"
+  >
+    <title id="radius-map-title">
+      Service area: {radiusDisplay} around {business.base.locality}, {business.base.region}
+    </title>
+    <desc id="radius-map-desc">
+      Concentric rings at 15, 35 and 50 miles from {business.base.locality}, with the towns
+      served plotted at their real distance and direction. New London and Hyannis sit just
+      outside the 50-mile ring.
+    </desc>
+
+    <defs>
+      <radialGradient id="radius-fill" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="var(--color-brand-500)" stop-opacity="0.16" />
+        <stop offset="100%" stop-color="var(--color-brand-500)" stop-opacity="0.03" />
+      </radialGradient>
+    </defs>
+
+    {/* The area itself. */}
+    <circle cx={CX} cy={CY} r={50 * SCALE} fill="url(#radius-fill)" />
+
+    {
+      rings.map((ring) => (
+        <circle
+          cx={CX}
+          cy={CY}
+          r={ring.miles * SCALE}
+          fill="none"
+          stroke={ring.miles === 50 ? 'var(--color-brand-500)' : 'var(--color-ink-300)'}
+          stroke-width={ring.miles === 50 ? 2 : 1}
+          stroke-dasharray={ring.miles === 50 ? undefined : '3 5'}
+        />
+      ))
+    }
+
+    {
+      /* Mileage ticks run due south, the one bearing with no town on it, and
+         carry a paper-coloured halo so the ring line does not strike through
+         them. */
+    }
+    {
+      rings.map((ring) => (
+        <text
+          x={CX + 7}
+          y={CY + ring.miles * SCALE - 6}
+          class="fill-ink-500"
+          font-size="11"
+          font-weight="700"
+          stroke="var(--color-paper)"
+          stroke-width="3.5"
+          paint-order="stroke"
+        >
+          {ring.miles} mi
+        </text>
+      ))
+    }
+
+    {/* Towns. */}
+    {
+      plotted.map((place) => (
+        <>
+          <circle
+            cx={place.x}
+            cy={place.y}
+            r={place.beyond ? 3 : 4}
+            fill={place.beyond ? 'var(--color-ink-400)' : 'var(--color-marine-600)'}
+          />
+          <text
+            x={place.labelX}
+            y={place.y + 4}
+            text-anchor={place.anchor}
+            font-size="12.5"
+            font-weight={place.beyond ? '500' : '700'}
+            stroke="var(--color-paper)"
+            stroke-width="3.5"
+            paint-order="stroke"
+            class={place.beyond ? 'fill-ink-500' : 'fill-ink-800'}
+          >
+            {place.name}
+          </text>
+        </>
+      ))
+    }
+
+    {/* Base. Drawn last so nothing overlaps it. */}
+    <circle cx={CX} cy={CY} r={9} fill="var(--color-brand-500)" />
+    <circle cx={CX} cy={CY} r={15} fill="none" stroke="var(--color-brand-500)" stroke-width="1.5" stroke-opacity="0.45" />
+    {
+      /* Sits to the right of the centre rather than under it: the mileage
+         ticks run straight down from here, and a label below would land on
+         top of the 15-mile one. */
+    }
+    <text
+      x={CX + 22}
+      y={CY + 5}
+      font-size="13"
+      font-weight="800"
+      stroke="var(--color-paper)"
+      stroke-width="4"
+      paint-order="stroke"
+      class="fill-ink-900"
+    >
+      {business.base.locality}
+    </text>
+  </svg>
+
+  <figcaption class="mt-3 text-sm text-ink-500">
+    Straight-line distance from {business.base.locality}. The two grey markers sit just
+    outside the {radiusDisplay} line — still available, with a travel charge.
+  </figcaption>
+</figure>

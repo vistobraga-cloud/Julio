@@ -26,13 +26,13 @@ const { items, heading = 'Common questions', openFirst = true, class: className 
 ---
 
 <section class={className}>
-  <h2 class="text-2xl font-extrabold text-ink-900 sm:text-3xl">{heading}</h2>
+  <h2 class="display display-md text-ink-900">{heading}</h2>
 
-  <div class="mt-6 divide-y divide-ink-200 border-y border-ink-200">
+  <div class="mt-8 divide-y divide-ink-900/10 border-y border-ink-900/10">
     {
       items.map((item, index) => (
         <details class="group" open={openFirst && index === 0}>
-          <summary class="flex cursor-pointer list-none items-start justify-between gap-4 py-5 text-left font-semibold text-ink-900 marker:content-none hover:text-marine-700">
+          <summary class="flex cursor-pointer list-none items-start justify-between gap-4 py-5 text-left text-lg font-bold text-ink-900 transition marker:content-none hover:text-brand-600">
             <span>{item.q}</span>
             <Icon
               name="chevronDown"
@@ -40,7 +40,7 @@ const { items, heading = 'Common questions', openFirst = true, class: className 
               class="mt-1.5 flex-none text-ink-500 transition-transform duration-200 group-open:rotate-180"
             />
           </summary>
-          <p class="pb-5 leading-relaxed text-ink-700">{item.a}</p>
+          <p class="max-w-2xl pb-6 leading-relaxed text-ink-600">{item.a}</p>
         </details>
       ))
     }

@@ -1,4 +1,9 @@
-import { business } from '@data/business';
+import {
+  business,
+  radiusDisplay,
+  schemaCounties,
+  serviceRadiusMeters,
+} from '@data/business';
 import { handyman } from '@data/handyman';
 import type { Faq } from '@data/services';
 
@@ -38,12 +43,45 @@ function openingHours(): Json[] {
   }));
 }
 
+/**
+ * The service area, as a circle plus the counties inside it.
+ *
+ * This used to emit three `State` nodes — Massachusetts, Rhode Island and
+ * Connecticut, whole. That was a claim on Pittsfield and Greenwich, 160 and
+ * 140 miles out, which Julio will never drive to. An inflated area is not a
+ * free bet: local ranking rewards a tight, plausible radius, and the Google
+ * Business Profile service area has to agree with what the site declares.
+ *
+ * `GeoCircle` is the type that exists for a business that travels to the
+ * customer, so it leads. The counties follow it because that is the unit a
+ * person recognises and the unit the Business Profile accepts — but only the
+ * core and regular tiers. The three edge counties are partly or entirely
+ * outside the circle and are honest only with a caveat attached, and there is
+ * nowhere to put a caveat in a machine-readable claim, so they stay in prose.
+ */
 function areaServed(): Json[] {
-  return business.areaServed.map((area) => ({
-    '@type': 'State',
-    name: area.name,
-    alternateName: area.abbr,
-  }));
+  return [
+    {
+      '@type': 'GeoCircle',
+      geoMidpoint: {
+        '@type': 'GeoCoordinates',
+        latitude: business.serviceRadius.lat,
+        longitude: business.serviceRadius.lng,
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: business.base.locality,
+          addressRegion: business.base.region,
+          addressCountry: 'US',
+        },
+      },
+      geoRadius: serviceRadiusMeters,
+      description: `Within ${radiusDisplay} of ${business.base.locality}, ${business.base.region}.`,
+    },
+    ...schemaCounties.map((county) => ({
+      '@type': 'AdministrativeArea',
+      name: `${county.name}, ${county.state}`,
+    })),
+  ];
 }
 
 export function homeAndConstructionBusiness(): Json {

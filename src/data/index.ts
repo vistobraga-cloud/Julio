@@ -2,7 +2,17 @@ import { services, type Service } from './services';
 import { brands, type Brand } from './brands';
 import { staticPages } from './staticPages';
 
-export { business, areaAbbrList, areaNameList, type Business } from './business';
+export {
+  business,
+  areaAbbrList,
+  areaNameList,
+  countiesByTier,
+  radiusDisplay,
+  schemaCounties,
+  serviceRadiusMeters,
+  servedTowns,
+  type Business,
+} from './business';
 export { handyman, ratingLine, type Handyman } from './handyman';
 export { staticPages, type StaticPage } from './staticPages';
 export {

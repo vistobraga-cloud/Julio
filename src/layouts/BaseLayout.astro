@@ -110,9 +110,17 @@ const ogImageUrl = new URL(ogImage, site).href;
     {gscToken && <meta name="google-site-verification" content={gscToken} />}
 
     {
-      /* One font file, self-hosted, latin subset, preloaded because it paints
-         the LCP text. Never a <link> to Google Fonts. */
+      /* Two font files, self-hosted, latin subset, both preloaded because
+         between them they paint the LCP text: Fraunces sets the headline,
+         Manrope everything under it. Never a <link> to Google Fonts. */
     }
+    <link
+      rel="preload"
+      href="/fonts/fraunces-latin-variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link
       rel="preload"
       href="/fonts/manrope-latin-variable.woff2"

@@ -10,6 +10,11 @@ import Icon from '@components/icons/Icon.astro';
  * job. WhatsApp sits alongside it for everyone who prefers to send a photo of
  * the box rather than describe it.
  *
+ * The secondary button used to be outlined in marine blue, which put a second
+ * saturated colour next to the green one and left the pair reading as two
+ * equal choices. It is now neutral on light and a translucent white on dark,
+ * so green is the only thing on any page that looks like the action.
+ *
  * `message` is the page's own prefilled text, so a visitor arriving on TV
  * mounting opens a chat about TV mounting.
  *
@@ -19,7 +24,7 @@ import Icon from '@components/icons/Icon.astro';
 interface Props {
   message: string;
   placement: string;
-  /** `dark` inverts the secondary button for use on the ink-900 band. */
+  /** `dark` inverts the secondary button for use on a night surface. */
   tone?: 'light' | 'dark';
   class?: string;
 }
@@ -28,15 +33,15 @@ const { message, placement, tone = 'light', class: className = '' } = Astro.prop
 
 const secondary =
   tone === 'dark'
-    ? 'border-white/35 text-white hover:bg-white hover:text-ink-900'
-    : 'border-marine-700 text-marine-700 hover:bg-marine-700 hover:text-white';
+    ? 'border-white/25 bg-white/5 text-white hover:border-white/60 hover:bg-white/12'
+    : 'border-ink-900/15 bg-white text-ink-900 hover:border-ink-900/40 hover:bg-ink-50';
 ---
 
 <div class={`flex flex-col gap-3 sm:flex-row sm:flex-wrap ${className}`}>
   <a
     href={telHref}
     data-cta-placement={placement}
-    class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-brand-700 active:bg-brand-800"
+    class="group inline-flex items-center justify-center gap-2.5 rounded-full bg-brand-500 px-7 py-4 text-base font-extrabold text-white shadow-lg shadow-brand-900/25 transition duration-200 hover:-translate-y-0.5 hover:bg-brand-400 hover:shadow-xl hover:shadow-brand-900/30 active:translate-y-0"
   >
     <Icon name="phone" />
     Call {phoneDisplay}
@@ -46,9 +51,9 @@ const secondary =
     href={whatsappHref(message)}
     data-cta-placement={placement}
     rel="noopener"
-    class={`inline-flex items-center justify-center gap-2 rounded-lg border-2 px-6 py-3.5 text-base font-bold transition ${secondary}`}
+    class={`inline-flex items-center justify-center gap-2.5 rounded-full border px-7 py-4 text-base font-bold backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 ${secondary}`}
   >
     <Icon name="whatsapp" />
-    WhatsApp
+    WhatsApp a photo
   </a>
 </div>

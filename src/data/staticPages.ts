@@ -33,10 +33,10 @@ const raw = {
     seo: {
       title: 'Aplus Assemblers | Furniture Assembly & TV Mounting',
       description:
-        'Furniture and gym equipment assembled, TVs mounted, handyman work done right. Ten years, one person, every job. Serving MA, RI and CT.',
+        'Furniture and gym equipment assembled, TVs mounted, handyman work done right. Ten years, one person, every job, within 50 miles of Fall River.',
       primaryKeyword: 'furniture assembly and handyman ma ri ct',
     },
-    h1: 'Furniture Assembly, TV Mounting and Handyman Work in MA, RI and CT',
+    h1: 'Furniture built, gym equipment assembled, TVs on the wall — properly, the first time',
     whatsappMessage: 'Hi Julio, I found your site. Here is what I need help with:',
   },
 

@@ -1,20 +1,38 @@
 @import 'tailwindcss';
 
 /*
- * Self-hosted type. One file, latin subset only, 24KB, served from a stable
- * path so the layout can preload it. Never a <link> to Google Fonts — that is
- * an extra origin, an extra connection and a third-party dependency on the
- * critical path.
+ * Self-hosted type. Two files, latin subset only, 61KB total, served from a
+ * stable path so the layout can preload them. Never a <link> to Google Fonts —
+ * that is an extra origin, an extra connection and a third-party dependency on
+ * the critical path.
  *
- * Manrope, not Inter. Inter is the default every AI-built site reaches for —
- * it reads as generic SaaS chrome. Manrope's bold and extrabold cuts have
- * real weight and a slightly warmer, sturdier geometry that fits a trades
- * business better than a neutral interface font does, while staying just as
- * legible at small sizes on a phone screen in a driveway.
+ * TWO FACES, TWO JOBS.
  *
- * Source: @fontsource-variable/manrope (files/manrope-latin-wght-normal.woff2).
- * To update: npm update @fontsource-variable/manrope, then re-copy the file.
+ * Fraunces carries the display line — the h1, the section headers, the pull
+ * quote. It is the reason the page stops reading like every other site built
+ * this year. The logo's own wordmark is a serif; a page set entirely in a
+ * geometric sans had no relationship to the mark sitting in its header. At
+ * heavy weights Fraunces has flared, worked serifs that read as something made
+ * by hand rather than something configured, which is the correct register for
+ * a trade.
+ *
+ * Manrope carries everything else — body copy, labels, buttons, navigation.
+ * It stays because it is genuinely good at small sizes on a phone screen in a
+ * driveway, which is where most of this site is read.
+ *
+ * Source: @fontsource-variable/{fraunces,manrope}, weight axis only.
+ * To update: npm update, then re-copy the files from node_modules.
  */
+@font-face {
+  font-family: 'Fraunces Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 900;
+  src: url('/fonts/fraunces-latin-variable.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+2000-206F, U+2122, U+2212, U+FEFF, U+FFFD;
+}
+
 @font-face {
   font-family: 'Manrope Variable';
   font-style: normal;
@@ -28,6 +46,7 @@
 
 @theme {
   --font-sans: 'Manrope Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
 
   /* Ink: the structural neutral, matched to the gray in the wordmark. */
   --color-ink-50: #f7f8f8;
@@ -55,8 +74,10 @@
   --color-brand-900: #243d27;
   --color-brand-950: #10210f;
 
-  /* Brand blue, sampled from the wordmark (#1c6c94). Secondary actions,
-     section accents, links. */
+  /* Brand blue, sampled from the wordmark (#1c6c94). Links and quiet accents.
+     Deliberately NOT a button colour any more — a blue outlined button next to
+     a green filled one meant the page had two things claiming to be the
+     primary action, so neither read as one. */
   --color-marine-50: #eff8fc;
   --color-marine-100: #d9eef7;
   --color-marine-200: #b7dded;
@@ -69,7 +90,17 @@
   --color-marine-900: #1c3e54;
   --color-marine-950: #112837;
 
-  --color-paper: #fbfbfa;
+  /*
+   * SURFACES. The old palette was white, near-white and a hairline border, so
+   * every section landed at the same value and the page read flat. These three
+   * give the page somewhere to go: a warm ground, a deeper band to sit against
+   * it, and a near-black with a green cast for the hero and the closing CTA.
+   * White is now a raised surface used sparingly, not the default.
+   */
+  --color-paper: #f7f4ef;
+  --color-shell: #ebe5db;
+  --color-night: #12160f;
+  --color-night-soft: #1b2118;
 }
 
 @layer base {
@@ -99,20 +130,15 @@
 
   /* Visible focus for keyboard users on every interactive element. */
   :where(a, button, summary, input, textarea, select):focus-visible {
-    outline: 3px solid var(--color-marine-600);
+    outline: 3px solid var(--color-brand-400);
     outline-offset: 2px;
     border-radius: 2px;
   }
 
-  /* Tight tracking at display sizes. Weight is set per heading with
-     font-extrabold where it matters (H1s, section headers) rather than
-     forced here — a base-layer weight would be silently shadowed by the
-     font-bold utility already present on most headings in the markup. */
   h1,
   h2,
   h3 {
     text-wrap: balance;
-    letter-spacing: -0.02em;
   }
 
   p {
@@ -121,6 +147,66 @@
 }
 
 @layer components {
+  /*
+   * The display face. Applied by class rather than to h1/h2 globally, because
+   * plenty of h2s are small UI labels (footer column headers, sidebar titles)
+   * that should stay in Manrope.
+   *
+   * Optical sizing is on: Fraunces thins its serifs as it grows, which is what
+   * keeps a 5rem headline from looking like a slab.
+   */
+  .display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-weight: 600;
+    letter-spacing: -0.021em;
+    line-height: 1.02;
+  }
+
+  /* Fluid display sizes. The old page topped out at 48px, which is why it read
+     as a document rather than a landing page. */
+  .display-xl {
+    font-size: clamp(2.4rem, 5vw, 4.25rem);
+  }
+
+  .display-lg {
+    font-size: clamp(1.95rem, 3.4vw, 2.875rem);
+  }
+
+  .display-md {
+    font-size: clamp(1.6rem, 2.6vw, 2.25rem);
+  }
+
+  /* The small uppercase label that opens a section. Manrope, wide, quiet. */
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /*
+   * Texture for the dark surfaces. Two layers: a fine dot grid that catches
+   * the light like a machined surface, and a soft green glow bled in from the
+   * top left. Pure CSS — no image request, and it survives any viewport.
+   */
+  .surface-night {
+    background-color: var(--color-night);
+    background-image:
+      radial-gradient(
+        ellipse 70% 60% at 12% -10%,
+        rgba(79, 143, 79, 0.28),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 50% 50% at 95% 8%,
+        rgba(28, 108, 148, 0.16),
+        transparent 70%
+      ),
+      radial-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 22px 22px;
+  }
+
   /* The sticky mobile bar overlaps the end of the document. This keeps the
      last section reachable on phones. */
   .has-sticky-bar {

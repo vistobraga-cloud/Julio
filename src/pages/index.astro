@@ -1,15 +1,12 @@
 ---
-import { Picture } from 'astro:assets';
-import heroImage from '@assets/placeholders/hero.jpg';
-
 import BaseLayout from '@layouts/BaseLayout.astro';
 import ContactButtons from '@components/ContactButtons.astro';
 import CtaPair from '@components/CtaPair.astro';
-import ProofBar from '@components/ProofBar.astro';
 import Faq from '@components/Faq.astro';
 import Icon from '@components/icons/Icon.astro';
+import ServiceRadiusMap from '@components/ServiceRadiusMap.astro';
 
-import { business, areaNameList, areaAbbrList } from '@data/business';
+import { business, countiesByTier, radiusDisplay } from '@data/business';
 import { handyman } from '@data/handyman';
 import { publishedServices } from '@data/services';
 import { staticPages } from '@data/staticPages';
@@ -17,6 +14,64 @@ import { faqPage } from '@lib/schema';
 import type { Faq as FaqItem } from '@data/services';
 
 const page = staticPages.home;
+const proof = handyman.socialProof;
+
+// Two-tone headline, split from the single h1 string rather than duplicated —
+// the audit still sees exactly one h1 and the data still owns the words.
+const [h1Lead, h1Tail] = page.h1.split(' — ');
+
+/**
+ * The kit Julio actually handles, named in plain text.
+ *
+ * This is the answer to "he is proud of the equipment he works on" that does
+ * not involve a wall of other people's logos. A logo strip implies a
+ * relationship that does not exist, and every competitor can paste the same
+ * one; naming the machines is both lawful and more specific. It is also what
+ * a search engine can read.
+ */
+const kit = [
+  'Treadmills',
+  'Ellipticals',
+  'Home gyms',
+  'Power racks',
+  'Exercise bikes',
+  'Rowers',
+  'Functional trainers',
+  'Wardrobes',
+  'Platform beds',
+  'Shelving walls',
+  'Standing desks',
+  'TV mounts',
+  'Playsets',
+  'Sheds',
+  'Grills',
+];
+
+const proofStats = [
+  { value: String(proof.jobsCompleted), label: 'jobs completed' },
+  { value: `${proof.rating}★`, label: `from ${proof.reviewCount} reviews` },
+  { value: `${handyman.yearsInBusiness} yrs`, label: 'in business' },
+  { value: 'Top Pro', label: `since ${proof.topProSince}` },
+];
+
+const promises = [
+  {
+    term: 'You deal with me',
+    desc: 'No dispatcher, no rotating crew. The person who answers the phone is the person standing in your living room.',
+  },
+  {
+    term: 'A price before I start',
+    desc: 'Send the model or a photo of the box. You get a number, not a range that moves once the job is half done.',
+  },
+  {
+    term: 'Built where it lives',
+    desc: 'Assembled in the room it belongs in, so nothing has to squeeze back through a doorway afterwards.',
+  },
+  {
+    term: 'The boxes go with me',
+    desc: 'Cardboard and foam flattened and removed. You are left with a room you can use that evening.',
+  },
+];
 
 /**
  * Home-level FAQ. Deliberately none of these repeat a question from a service
@@ -37,16 +92,26 @@ const faqs: FaqItem[] = [
     a: 'Yes, all of them, including the ones the box quietly assumes you own. Drills, drivers, a hammer drill for masonry, levels, stud finder, and the anchors and fixings for whatever wall type you have. You do not need to supply anything.',
   },
   {
+    q: 'Do you take equipment apart as well as put it together?',
+    a: 'Yes, and it is a bigger part of the work than people expect. Treadmills, home gyms and racks that have to leave a basement before a move are exactly the jobs that go wrong when they are rushed. I dismantle them, label the hardware, and wrap the parts so the thing can be rebuilt at the other end rather than replaced.',
+  },
+  {
     q: 'Are you insured?',
-    a: `Yes. I carry insurance and I am background checked through ${handyman.socialProof.platform}, where I have held Top Pro status since ${handyman.socialProof.topProSince}. If your building or HOA needs a certificate of insurance before I can work on site, ask and I will get it to you.`,
+    a: `Yes. I carry insurance and I am background checked through ${proof.platform}, where I have held Top Pro status since ${proof.topProSince}. If your building or HOA needs a certificate of insurance before I can work on site, ask and I will get it to you.`,
   },
   {
     q: 'Do you cover my town?',
-    a: `I work across ${areaNameList} and I am based in ${business.base.locality}, ${business.base.region}. Southeastern Massachusetts and Rhode Island are the quickest to schedule. Further out is still available — tell me the town and I will be honest about timing.`,
+    a: `I work within about ${radiusDisplay} of ${business.base.locality}, ${business.base.region} — all of Rhode Island, the southeastern third of Massachusetts, and the corner of Connecticut around Norwich and New London. If you are near the edge of that, ask anyway and I will be honest about timing rather than quietly adding a two-hour drive to your job.`,
   },
 ];
 
 const schemaNodes = [faqPage(faqs)];
+
+const tiers = [
+  { key: 'core', title: 'Fastest to schedule', range: 'Inside about 35 miles' },
+  { key: 'regular', title: 'A normal working trip', range: '35 to 55 miles' },
+  { key: 'edge', title: 'Yes, with a caveat', range: 'Partly outside the radius' },
+] as const;
 ---
 
 <BaseLayout
@@ -56,146 +121,170 @@ const schemaNodes = [faqPage(faqs)];
   schemaNodes={schemaNodes}
 >
   <!-- Hero -->
-  <section class="border-b border-ink-200 bg-white">
-    <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-14 lg:py-20">
-      <div>
-        <p class="text-sm font-semibold tracking-wide text-marine-700 uppercase">
-          {areaAbbrList} · {handyman.yearsInBusiness} years · One person, start to finish
-        </p>
+  <section class="surface-night relative overflow-hidden text-white">
+    <div class="relative mx-auto max-w-6xl px-4 pt-14 pb-16 sm:px-6 lg:pt-20 lg:pb-24">
+      <div class="grid gap-12 lg:grid-cols-12 lg:gap-10">
+        <div class="lg:col-span-7">
+          <p class="eyebrow flex flex-wrap items-center gap-x-3 gap-y-1 text-brand-300">
+            <span>{business.base.locality}, {business.base.region}</span>
+            <span aria-hidden="true" class="text-white/25">/</span>
+            <span>{radiusDisplay} radius</span>
+            <span aria-hidden="true" class="text-white/25">/</span>
+            <span>One person, start to finish</span>
+          </p>
 
-        <h1 class="mt-4 text-3xl leading-[1.05] font-extrabold tracking-tight text-ink-900 sm:text-4xl lg:text-5xl">
-          {page.h1}
-        </h1>
+          <h1 class="display display-xl mt-6 text-white">
+            {h1Lead}
+            {h1Tail && <span class="block text-brand-400">{h1Tail}.</span>}
+          </h1>
 
-        <p class="mt-5 max-w-xl text-lg leading-relaxed text-ink-700">
-          You bought the thing. It is sitting in a box in the hallway, and the instructions
-          are twelve pages of drawings with no words. I build it, mount it or fix it —
-          properly, the first time — and the packaging leaves with me.
-        </p>
+          <p class="mt-7 max-w-xl text-lg leading-relaxed text-white/70">
+            You bought the thing. It is sitting in a box in the hallway, and the
+            instructions are twelve pages of drawings with no words. I build it, mount it
+            or fix it — and the packaging leaves with me.
+          </p>
 
-        <ContactButtons
-          message={page.whatsappMessage}
-          placement="hero"
-          class="mt-8"
-        />
+          <ContactButtons
+            message={page.whatsappMessage}
+            placement="hero"
+            tone="dark"
+            class="mt-9"
+          />
 
-        <p class="mt-4 text-sm text-ink-500">{business.hoursDisplay}</p>
-      </div>
+          <p class="mt-5 text-sm text-white/45">{business.hoursDisplay}</p>
+        </div>
 
-      <div class="lg:justify-self-end">
-        <Picture
-          src={heroImage}
-          alt="Assembled furniture and a mounted television in a finished living room"
-          formats={['avif', 'webp']}
-          widths={[560, 800, 1200]}
-          sizes="(min-width: 1024px) 560px, 100vw"
-          fetchpriority="high"
-          loading="eager"
-          class="w-full rounded-xl object-cover shadow-sm"
-        />
+        {
+          /* The proof panel stands where a hero photograph normally would. Until
+             Julio's own job photos exist, four verified numbers are a stronger
+             thing to put beside the call button than a stock image would be. */
+        }
+        <div class="lg:col-span-5 lg:pl-6">
+          <div class="rounded-3xl border border-white/12 bg-white/[0.04] p-7 backdrop-blur-sm sm:p-8">
+            <p class="eyebrow text-white/40">The record so far</p>
+
+            <dl class="mt-6 grid grid-cols-2 gap-x-6 gap-y-7">
+              {
+                proofStats.map((stat) => (
+                  <div>
+                    <dt class="display text-3xl text-white tabular-nums sm:text-5xl">
+                      {stat.value}
+                    </dt>
+                    <dd class="mt-1.5 text-sm text-white/50">{stat.label}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+
+            <p class="mt-8 border-t border-white/10 pt-5 text-sm leading-relaxed text-white/45">
+              Verified on {proof.platform}, where the reviews were earned. Background
+              checked{business.credentials.insured ? ' and insured' : ''}.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Proof -->
-  <section class="border-b border-ink-200 bg-paper">
-    <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <ProofBar />
+  <!-- Kit strip -->
+  <section
+    class="border-y border-ink-900/8 bg-shell py-5"
+    aria-label="Equipment and furniture I assemble"
+  >
+    <div class="marquee">
+      <ul class="marquee__track">
+        {
+          [0, 1].map((pass) =>
+            kit.map((item) => (
+              <li
+                class="flex items-center gap-3 text-sm font-semibold whitespace-nowrap text-ink-700"
+                aria-hidden={pass === 1 ? 'true' : undefined}
+              >
+                <span class="h-1.5 w-1.5 flex-none rounded-full bg-brand-500" />
+                {item}
+              </li>
+            )),
+          )
+        }
+      </ul>
     </div>
   </section>
 
   <!-- Services -->
-  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
-    <div class="grid gap-6 lg:grid-cols-5 lg:gap-14">
-      <div class="lg:col-span-2">
-        <h2 class="text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl">
-          What I do, and do properly
-        </h2>
-        <p class="mt-3 leading-relaxed text-ink-700">
+  <section class="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
+    <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+      <div class="lg:col-span-4">
+        <p class="eyebrow text-brand-600">What I do</p>
+        <h2 class="display display-lg mt-4 text-ink-900">Seven things, done properly</h2>
+        <p class="mt-5 leading-relaxed text-ink-600">
           Not a directory of subcontractors. These are the {publishedServices.length}
-          categories I have spent ten years on, which is also the honest list of what I
-          take on.
+          categories I have spent {handyman.yearsInBusiness} years on, which is also the
+          honest list of what I take on.
         </p>
       </div>
 
-      <div class="lg:col-span-3">
-        <ul class="divide-y divide-ink-200 border-t border-ink-200">
-          {
-            publishedServices.map((service, index) => (
-              <li>
-                <a
-                  href={`/services/${service.slug}`}
-                  class="group grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-4 gap-y-1 py-5 transition hover:bg-paper sm:grid-cols-[3rem_1fr_auto]"
-                >
-                  <span class="font-mono text-sm text-ink-600 tabular-nums">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span class="text-lg font-bold text-ink-900 group-hover:text-marine-700">
-                    {service.name}
-                  </span>
-                  <Icon
-                    name="arrowRight"
-                    class="row-span-2 hidden self-center text-ink-500 transition group-hover:translate-x-1 group-hover:text-marine-700 sm:block"
-                  />
-                  <span class="col-start-2 text-sm leading-relaxed text-ink-600">
-                    {service.seo.description}
-                  </span>
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
+      <ul class="lg:col-span-8">
+        {
+          publishedServices.map((service, index) => (
+            <li>
+              <a
+                href={`/services/${service.slug}`}
+                class="group -mx-4 grid grid-cols-[2.25rem_1fr_auto] items-baseline gap-x-5 gap-y-2 rounded-2xl border-t border-ink-900/10 px-4 py-6 transition duration-200 hover:bg-white sm:grid-cols-[3rem_1fr_auto]"
+              >
+                <span class="display text-lg text-brand-500 tabular-nums">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span class="display text-2xl text-ink-900 transition group-hover:text-brand-600 sm:text-3xl">
+                  {service.name}
+                </span>
+                <Icon
+                  name="arrowRight"
+                  class="row-span-2 hidden self-center text-ink-300 transition duration-200 group-hover:translate-x-1.5 group-hover:text-brand-500 sm:block"
+                />
+                <span class="col-start-2 max-w-lg text-sm leading-relaxed text-ink-600">
+                  {service.seo.description}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
   <!-- Why -->
-  <section class="border-y border-ink-200 bg-white">
-    <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
-      <div class="grid gap-10 lg:grid-cols-2 lg:gap-16">
-        <div>
-          <h2 class="text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl">
-            Why it matters who does it
-          </h2>
-          <p class="mt-4 leading-relaxed text-ink-700">
+  <section class="surface-night text-white">
+    <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
+      <div class="grid gap-14 lg:grid-cols-12 lg:gap-16">
+        <div class="lg:col-span-5">
+          <p class="eyebrow text-brand-300">Why it matters who does it</p>
+
+          <blockquote class="display display-md mt-6 text-white">
+            None of it is visible on the day.
+            <span class="block text-brand-400">It shows up in month three.</span>
+          </blockquote>
+
+          <p class="mt-7 leading-relaxed text-white/65">
             Assembly looks like a commodity until something goes wrong. A dresser that was
-            never anchored. A treadmill leveled to its own frame instead of to the floor,
+            never anchored. A treadmill levelled to its own frame instead of to the floor,
             wearing the belt on one side. A 65-inch television hanging off drywall anchors
             rated for a picture frame.
           </p>
-          <p class="mt-4 leading-relaxed text-ink-700">
-            None of those are visible on the day. They show up in month three. Ten years
-            of doing this is mostly a catalog of which shortcuts come back, and the
-            discipline not to take them.
+          <p class="mt-4 leading-relaxed text-white/65">
+            {handyman.yearsInBusiness} years of doing this is mostly a catalogue of which
+            shortcuts come back, and the discipline not to take them.
           </p>
         </div>
 
-        <dl class="grid gap-x-8 gap-y-8 sm:grid-cols-2">
+        <dl class="grid gap-px overflow-hidden rounded-3xl bg-white/10 sm:grid-cols-2 lg:col-span-7">
           {
-            [
-              {
-                term: 'You deal with me',
-                desc: 'No dispatcher, no rotating crew. The person who answers the phone is the person standing in your living room.',
-              },
-              {
-                term: 'A price before I start',
-                desc: 'Send the model or a photo of the box. You get a number, not a range that moves once the job is half done.',
-              },
-              {
-                term: 'Built where it lives',
-                desc: 'Assembled in the room it belongs in, so nothing has to squeeze back through a doorway afterwards.',
-              },
-              {
-                term: 'The boxes go with me',
-                desc: 'Cardboard and foam flattened and removed. You are left with a room you can use that evening.',
-              },
-            ].map((item, index) => (
-              <div class="border-l-2 border-brand-600 pl-4">
-                <span class="font-mono text-xs text-ink-600 tabular-nums">
+            promises.map((item, index) => (
+              <div class="bg-night-soft p-7 sm:p-8">
+                <span class="display text-sm text-brand-400 tabular-nums">
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <dt class="mt-1 font-bold text-ink-900">{item.term}</dt>
-                <dd class="mt-2 text-sm leading-relaxed text-ink-600">{item.desc}</dd>
+                <dt class="mt-3 text-lg font-bold text-white">{item.term}</dt>
+                <dd class="mt-2.5 text-sm leading-relaxed text-white/55">{item.desc}</dd>
               </div>
             ))
           }
@@ -205,48 +294,79 @@ const schemaNodes = [faqPage(faqs)];
   </section>
 
   <!-- Area -->
-  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
-    <div class="grid gap-8 lg:grid-cols-3 lg:gap-12">
-      <div class="lg:col-span-2">
-        <h2 class="text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl">
-          Where I work
+  <section class="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
+    <div class="grid gap-14 lg:grid-cols-12 lg:gap-16">
+      <div class="lg:col-span-5">
+        <p class="eyebrow text-brand-600">Where I work</p>
+        <h2 class="display display-lg mt-4 text-ink-900">
+          {radiusDisplay} out from {business.base.locality}
         </h2>
-        <p class="mt-4 max-w-2xl leading-relaxed text-ink-700">
-          {areaNameList}. I am based in {business.base.locality} and most of my work is
-          within an hour of it — the South Coast, Greater Providence, the South Shore and
-          into Bristol and Newport counties. Boston, Worcester and eastern Connecticut are
-          regular trips rather than rare ones.
+
+        <p class="mt-5 leading-relaxed text-ink-700">
+          The job is somewhere different every day, so what bounds this business is drive
+          time, not a state line. Fifty miles from {business.base.locality} covers
+          effectively all of Rhode Island, the southeastern third of Massachusetts, and
+          the corner of Connecticut around Norwich and New London.
         </p>
-        <p class="mt-4 max-w-2xl leading-relaxed text-ink-700">
-          If you are further out, ask anyway. I would rather tell you honestly that a
-          Tuesday works better than a Friday than turn down a job that is perfectly doable.
+        <p class="mt-4 leading-relaxed text-ink-700">
+          Inside the first ring I can often be there the next day. Out at the edge it is
+          still perfectly doable — it just wants a Tuesday rather than a Friday, and I
+          would rather say so than quietly add two hours of driving to your job.
         </p>
+
+        <ContactButtons
+          message="Hi Julio, I found your site. I am in — do you come out this far?"
+          placement="area"
+          class="mt-9"
+        />
       </div>
 
-      <ul class="space-y-3 self-start rounded-xl border border-ink-200 bg-white p-6">
-        {
-          business.areaServed.map((area) => (
-            <li class="flex items-center gap-3">
-              <span class="inline-flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-800">
-                {area.abbr}
-              </span>
-              <span class="font-medium text-ink-800">{area.name}</span>
-            </li>
-          ))
-        }
-      </ul>
+      <div class="lg:col-span-7">
+        <ServiceRadiusMap class="hidden md:block" />
+
+        <div class="space-y-9 md:mt-12">
+          {
+            tiers.map((tier) => (
+              <div>
+                <div class="flex flex-wrap items-baseline gap-x-3 border-b border-ink-900/10 pb-3">
+                  <h3 class="font-bold text-ink-900">{tier.title}</h3>
+                  <span class="text-sm text-ink-500">{tier.range}</span>
+                </div>
+
+                <ul class="mt-4 space-y-3">
+                  {countiesByTier[tier.key].map((county) => (
+                    <li>
+                      <p class="text-sm font-bold text-ink-800">
+                        {county.name}, {county.state}
+                        <span class="ml-2 font-medium text-ink-500">
+                          {county.towns.slice(0, 4).join(' · ')}
+                        </span>
+                      </p>
+                      {county.note && (
+                        <p class="mt-1.5 max-w-xl text-sm leading-relaxed text-ink-600 italic">
+                          {county.note}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section class="border-t border-ink-200 bg-white">
-    <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:py-20">
+  <section class="border-t border-ink-900/8 bg-shell">
+    <div class="mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:py-28">
       <Faq items={faqs} heading="Before you call" />
     </div>
   </section>
 
   <!-- CTA -->
-  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+  <section class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
     <CtaPair
       heading="Tell me what is in the box"
       body="Send the product name or a photo of the label and I will give you a real price and a real window. Same week most of the time, next day more often than you would expect."
@@ -255,3 +375,43 @@ const schemaNodes = [faqPage(faqs)];
     />
   </section>
 </BaseLayout>
+
+<style>
+  /*
+   * The kit strip. Doubled in the markup and translated by half its width, so
+   * the loop is seamless with no JavaScript and no cloning at runtime. The
+   * second copy is aria-hidden, so a screen reader hears the list once.
+   */
+  .marquee {
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    gap: 2.5rem;
+    padding-inline: 1.25rem;
+    animation: marquee-scroll 46s linear infinite;
+  }
+
+  @keyframes marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Anyone who has asked the OS to calm motion down gets a static list they
+     can still read from the start. */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      overflow-x: auto;
+    }
+    .marquee__track {
+      animation: none;
+    }
+  }
+</style>
