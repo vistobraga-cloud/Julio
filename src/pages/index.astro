@@ -127,7 +127,7 @@ const schemaNodes = [faqPage(faqs)];
                   href={`/services/${service.slug}`}
                   class="group grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-4 gap-y-1 py-5 transition hover:bg-paper sm:grid-cols-[3rem_1fr_auto]"
                 >
-                  <span class="font-mono text-sm text-ink-300 tabular-nums">
+                  <span class="font-mono text-sm text-ink-600 tabular-nums">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <span class="text-lg font-bold text-ink-900 group-hover:text-marine-700">
@@ -135,7 +135,7 @@ const schemaNodes = [faqPage(faqs)];
                   </span>
                   <Icon
                     name="arrowRight"
-                    class="row-span-2 hidden self-center text-ink-300 transition group-hover:translate-x-1 group-hover:text-marine-700 sm:block"
+                    class="row-span-2 hidden self-center text-ink-500 transition group-hover:translate-x-1 group-hover:text-marine-700 sm:block"
                   />
                   <span class="col-start-2 text-sm leading-relaxed text-ink-600">
                     {service.seo.description}
@@ -191,7 +191,7 @@ const schemaNodes = [faqPage(faqs)];
               },
             ].map((item, index) => (
               <div class="border-l-2 border-brand-600 pl-4">
-                <span class="font-mono text-xs text-ink-400 tabular-nums">
+                <span class="font-mono text-xs text-ink-600 tabular-nums">
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <dt class="mt-1 font-bold text-ink-900">{item.term}</dt>

@@ -122,6 +122,28 @@ const raw = {
     whatsappMessage: 'Hi Julio, I have a question about your terms:',
   },
 
+  sitemap: {
+    route: '/sitemap',
+    seo: {
+      title: 'Sitemap | Aplus Assemblers',
+      description:
+        'Every page on this site in one place: services, brands by category and the essentials, for anyone who would rather browse than search.',
+    },
+    h1: 'Every Page on This Site',
+    whatsappMessage: 'Hi Julio, I was browsing your site and I need:',
+  },
+
+  search: {
+    route: '/search',
+    seo: {
+      title: 'Search | Aplus Assemblers',
+      description:
+        'Search the site for a brand, a service or a specific problem. Results are pulled from every page, not just the ones already easy to find.',
+    },
+    h1: 'Search This Site',
+    whatsappMessage: 'Hi Julio, I searched your site and found what I need:',
+  },
+
   notFound: {
     route: '/404',
     seo: {

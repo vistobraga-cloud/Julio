@@ -1,0 +1,142 @@
+---
+/**
+ * The search UI. Plain Astro component, no framework — the module script
+ * below is the only JS this page ships, and Astro code-splits it onto this
+ * page's own chunk automatically since it's a page-local <script type="module">,
+ * not a client:* island. None of the other 36 pages pay for this.
+ *
+ * Pagefind (github.com/CloudCannon/pagefind) builds its index as a postbuild
+ * step (see package.json's "build" script) against dist/, scoped to
+ * <main data-pagefind-body> in BaseLayout.astro so header/footer chrome never
+ * pollutes results. It does not run under `astro dev` — /pagefind/pagefind.js
+ * 404s there by design, so the script below must degrade to a message rather
+ * than throw. Verify search with:
+ *   astro build && pagefind --site dist && astro preview
+ * never with `astro dev`.
+ */
+---
+
+<div class="mx-auto max-w-2xl">
+  <label for="search-input" class="sr-only">Search</label>
+  <div class="relative">
+    <svg
+      class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-400"
+      viewBox="0 0 256 256"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        d="M229.66 218.34l-50.07-50.06a88.11 88.11 0 1 0-11.31 11.31l50.06 50.07a8 8 0 0 0 11.32-11.32ZM40 112a72 72 0 1 1 72 72 72.08 72.08 0 0 1-72-72Z"
+      ></path>
+    </svg>
+    <input
+      id="search-input"
+      type="search"
+      placeholder="Try “Peloton” or “brick”"
+      autocomplete="off"
+      class="w-full rounded-xl border border-ink-300 bg-white py-4 pl-12 pr-4 text-base text-ink-900 placeholder:text-ink-400 focus-visible:border-marine-600"
+    />
+  </div>
+
+  <p id="search-status" class="mt-3 text-sm text-ink-500" aria-live="polite">
+    Start typing to search the site.
+  </p>
+
+  <ul id="search-results" class="mt-6 space-y-4"></ul>
+</div>
+
+<script>
+  type PagefindResult = {
+    url: string;
+    meta: { title?: string };
+    excerpt: string;
+  };
+
+  type PagefindSearchResponse = {
+    results: { id: string; data: () => Promise<PagefindResult> }[];
+  };
+
+  type Pagefind = {
+    init: () => Promise<void>;
+    debouncedSearch: (
+      query: string,
+      options: Record<string, unknown>,
+      debounceMs: number,
+    ) => Promise<PagefindSearchResponse | null>;
+  };
+
+  const input = document.getElementById('search-input') as HTMLInputElement;
+  const status = document.getElementById('search-status') as HTMLElement;
+  const results = document.getElementById('search-results') as HTMLUListElement;
+
+  /**
+   * Pagefind records the result URL from the built file path
+   * (astro.config.mjs sets build.format: 'file', so that's e.g.
+   * /services/tv-mounting.html). Every other link on the site is
+   * extensionless — trailingSlash: 'never' plus Vercel's cleanUrls, see
+   * astro.config.mjs's own comment on why. Vercel's cleanUrls would 308 a
+   * ".html" request to the clean form anyway, but stripping it here avoids
+   * that hop and keeps every link on the page, including these, in the
+   * one URL shape the rest of the site already commits to.
+   */
+  function cleanUrl(url: string): string {
+    return url.replace(/index\.html$/, '').replace(/\.html$/, '');
+  }
+
+  function renderResults(items: PagefindResult[]) {
+    results.innerHTML = '';
+    for (const item of items) {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <a href="${cleanUrl(item.url)}" class="block rounded-xl border border-ink-200 bg-white p-5 transition hover:border-marine-300 hover:shadow-md">
+          <span class="block font-bold text-ink-900">${item.meta.title ?? item.url}</span>
+          <span class="mt-2 block text-sm leading-relaxed text-ink-600">${item.excerpt}</span>
+        </a>`;
+      results.appendChild(li);
+    }
+  }
+
+  async function boot() {
+    let pagefind: Pagefind;
+    try {
+      // @vite-ignore — /pagefind/pagefind.js is written by the `pagefind`
+      // CLI as a postbuild step, after Vite's own build finishes. Without
+      // this comment Vite tries to resolve the path at build time and the
+      // build fails, since the file does not exist yet at that point.
+      // @ts-expect-error — same reason: nothing for TypeScript to resolve.
+      pagefind = await import(/* @vite-ignore */ '/pagefind/pagefind.js');
+      await pagefind.init();
+    } catch {
+      // Expected in `astro dev`, where the postbuild step never ran.
+      status.textContent =
+        'Search is not available in local dev — it runs on the deployed site, after the build step generates its index.';
+      input.disabled = true;
+      return;
+    }
+
+    status.textContent = 'Start typing to search the site.';
+
+    input.addEventListener('input', async () => {
+      const query = input.value.trim();
+
+      if (query.length < 2) {
+        results.innerHTML = '';
+        status.textContent = 'Start typing to search the site.';
+        return;
+      }
+
+      const search = await pagefind.debouncedSearch(query, {}, 300);
+      if (!search) return; // superseded by a newer keystroke
+
+      const items = await Promise.all(search.results.slice(0, 10).map((r) => r.data()));
+      renderResults(items);
+
+      status.textContent =
+        items.length === 0
+          ? `No results for “${query}”.`
+          : `${items.length} result${items.length === 1 ? '' : 's'} for “${query}”.`;
+    });
+  }
+
+  boot();
+</script>

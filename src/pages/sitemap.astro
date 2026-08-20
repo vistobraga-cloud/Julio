@@ -1,0 +1,142 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+
+import { publishedServices } from '@data/services';
+import { brandCategories, brandsByCategory, type BrandCategory } from '@data/brands';
+import { staticPages } from '@data/staticPages';
+import { BOOK_PATH } from '@lib/nav';
+
+/**
+ * A human-readable directory of the site, distinct from the machine
+ * sitemap-index.xml that @astrojs/sitemap generates for crawlers.
+ *
+ * Names and links only — no reused prose. /brands and /services already
+ * render every brand.seo.description and service.intro[0] verbatim, and the
+ * build's duplication check (8-word shingles, scripts/seo-audit.mjs) would
+ * likely flag this page against both if it repeated them at any length.
+ */
+const page = staticPages.sitemap;
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Sitemap', path: '/sitemap' },
+];
+
+const mainPages = [
+  { name: 'Home', path: '/' },
+  { name: 'About Julio', path: '/about' },
+  { name: 'Services', path: '/services' },
+  { name: 'Brands', path: '/brands' },
+  { name: 'Book a job', path: BOOK_PATH },
+  { name: 'Contact', path: '/contact' },
+];
+
+const legalPages = [
+  { name: 'Privacy Policy', path: '/privacy-policy' },
+  { name: 'Terms of Service', path: '/terms' },
+];
+
+const brandGroups = (Object.keys(brandCategories) as BrandCategory[])
+  .map((key) => ({ key, label: brandCategories[key].label, entries: brandsByCategory(key) }))
+  .filter((group) => group.entries.length > 0);
+---
+
+<BaseLayout
+  title={page.seo.title}
+  description={page.seo.description}
+  whatsappMessage={page.whatsappMessage}
+  breadcrumbs={trail}
+>
+  <div class="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+    <Breadcrumbs trail={trail} />
+  </div>
+
+  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
+    <h1 class="text-3xl leading-tight font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+      {page.h1}
+    </h1>
+
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-700">
+      Everything on this site, by name, in one place. If you would rather type than click,
+      the <a href="/search" class="font-semibold text-marine-700 hover:underline">search page</a>
+      is usually faster.
+    </p>
+
+    <div class="mt-12 grid gap-12 lg:grid-cols-2">
+      <div>
+        <h2 class="text-lg font-extrabold text-ink-900">Main pages</h2>
+        <ul class="mt-4 space-y-2.5">
+          {
+            mainPages.map((item) => (
+              <li>
+                <a href={item.path} class="text-ink-700 transition hover:text-marine-700">
+                  {item.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <h2 class="mt-10 text-lg font-extrabold text-ink-900">Services</h2>
+        <ul class="mt-4 space-y-2.5">
+          {
+            publishedServices.map((service) => (
+              <li>
+                <a
+                  href={`/services/${service.slug}`}
+                  class="text-ink-700 transition hover:text-marine-700"
+                >
+                  {service.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <h2 class="mt-10 text-lg font-extrabold text-ink-900">Legal</h2>
+        <ul class="mt-4 space-y-2.5">
+          {
+            legalPages.map((item) => (
+              <li>
+                <a href={item.path} class="text-ink-700 transition hover:text-marine-700">
+                  {item.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="text-lg font-extrabold text-ink-900">Brands, by category</h2>
+        <div class="mt-4 space-y-8">
+          {
+            brandGroups.map((group) => (
+              <div>
+                <a
+                  href={`/brands#${group.key}`}
+                  class="text-sm font-semibold tracking-wide text-ink-500 uppercase transition hover:text-marine-700"
+                >
+                  {group.label}
+                </a>
+                <ul class="mt-3 space-y-2.5">
+                  {group.entries.map((brand) => (
+                    <li>
+                      <a
+                        href={`/brands/${brand.slug}`}
+                        class="text-ink-700 transition hover:text-marine-700"
+                      >
+                        {brand.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

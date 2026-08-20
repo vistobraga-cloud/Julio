@@ -43,6 +43,19 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        // /pagefind/pagefind.js is written by the `pagefind` CLI as a
+        // postbuild step (see package.json's "build" script), after this
+        // Vite/Rollup build finishes — the file does not exist yet when
+        // Rollup tries to resolve it. `@vite-ignore` in the dynamic import
+        // only suppresses Vite's *dev-server* import analysis; Rollup's own
+        // production-build resolution ignores that comment, so the path
+        // must be declared external here instead, left untouched for the
+        // browser to resolve at runtime once Pagefind has actually run.
+        external: ['/pagefind/pagefind.js'],
+      },
+    },
   },
 
   image: {

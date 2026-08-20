@@ -5,8 +5,25 @@ import { business } from '@data/business';
 import { telHref, phoneDisplay } from '@lib/contact';
 import { primaryNav, isCurrent } from '@lib/nav';
 import Icon from '@components/icons/Icon.astro';
+import NavDropdown from '@components/NavDropdown.astro';
+import { publishedServices } from '@data/services';
+import { brandCategories, type BrandCategory } from '@data/brands';
 
 const pathname = Astro.url.pathname;
+
+const serviceItems = publishedServices.map((s) => ({
+  label: s.name,
+  href: `/services/${s.slug}`,
+}));
+
+const brandCategoryItems = (Object.keys(brandCategories) as BrandCategory[]).map((key) => ({
+  label: brandCategories[key].label,
+  href: `/brands#${key}`,
+}));
+
+// Services and Brands become dropdown panels on desktop; About/Book/Contact
+// stay plain links. Keep this in sync with src/lib/nav.ts's primaryNav order.
+const restNav = primaryNav.filter((item) => item.label !== 'Services' && item.label !== 'Brands');
 ---
 
 <header class="sticky top-0 z-30 border-b border-ink-200 bg-paper/95 backdrop-blur-sm">
@@ -24,8 +41,10 @@ const pathname = Astro.url.pathname;
     </a>
 
     <nav aria-label="Main" class="hidden items-center gap-8 md:flex">
+      <NavDropdown label="Services" href="/services" items={serviceItems} />
+      <NavDropdown label="Brands" href="/brands" items={brandCategoryItems} />
       {
-        primaryNav.map((item) => (
+        restNav.map((item) => (
           <a
             href={item.href}
             aria-current={isCurrent(item.href, pathname) ? 'page' : undefined}
@@ -37,15 +56,25 @@ const pathname = Astro.url.pathname;
       }
     </nav>
 
-    <a
-      href={telHref}
-      data-cta-placement="header"
-      class="inline-flex flex-none items-center gap-2 rounded-lg bg-brand-600 px-3 py-2 text-sm font-bold text-white transition hover:bg-brand-700 sm:px-4 sm:py-2.5"
-    >
-      <Icon name="phone" size={16} />
-      <span class="hidden sm:inline">{phoneDisplay}</span>
-      <span class="sm:hidden">Call</span>
-    </a>
+    <div class="flex flex-none items-center gap-2">
+      <a
+        href="/search"
+        aria-label="Search"
+        class="hidden items-center justify-center rounded-lg p-2.5 text-ink-600 transition hover:bg-ink-100 hover:text-marine-700 md:inline-flex"
+      >
+        <Icon name="search" size={18} />
+      </a>
+
+      <a
+        href={telHref}
+        data-cta-placement="header"
+        class="inline-flex min-h-11 flex-none items-center gap-2 rounded-lg bg-brand-600 px-3 py-2 text-sm font-bold text-white transition hover:bg-brand-700 sm:min-h-0 sm:px-4 sm:py-2.5"
+      >
+        <Icon name="phone" size={16} />
+        <span class="hidden sm:inline">{phoneDisplay}</span>
+        <span class="sm:hidden">Call</span>
+      </a>
+    </div>
   </div>
 
   <!-- On small screens the nav moves below the logo row rather than into a
@@ -66,5 +95,13 @@ const pathname = Astro.url.pathname;
         </a>
       ))
     }
+    <a
+      href="/search"
+      aria-current={isCurrent('/search', pathname) ? 'page' : undefined}
+      class="flex flex-none items-center gap-1 whitespace-nowrap text-sm font-semibold text-ink-600 aria-[current=page]:text-marine-700"
+    >
+      <Icon name="search" size={14} />
+      Search
+    </a>
   </nav>
 </header>

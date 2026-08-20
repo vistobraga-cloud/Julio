@@ -56,10 +56,23 @@ const groups = (Object.keys(brandCategories) as BrandCategory[])
       category, so a rower is a rower and a flat-pack wardrobe is a flat-pack wardrobe.
     </p>
 
+    <nav aria-label="Jump to category" class="mt-8 flex flex-wrap gap-2">
+      {
+        groups.map((group) => (
+          <a
+            href={`#${group.key}`}
+            class="rounded-full bg-ink-100 px-4 py-2 text-sm font-semibold text-ink-700 transition hover:bg-ink-200"
+          >
+            {group.meta.label}
+          </a>
+        ))
+      }
+    </nav>
+
     <div class="mt-12 space-y-14">
       {
         groups.map((group) => (
-          <section>
+          <section id={group.key} class="scroll-mt-40 md:scroll-mt-28" tabindex="-1">
             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <h2 class="text-2xl font-bold tracking-tight text-ink-900">{group.meta.label}</h2>
               <span class="text-sm font-medium text-ink-500">
@@ -83,7 +96,7 @@ const groups = (Object.keys(brandCategories) as BrandCategory[])
                         {brand.name}
                       </h3>
                       {parent && (
-                        <p class="mt-1 text-xs font-medium tracking-wide text-ink-400 uppercase">
+                        <p class="mt-1 text-xs font-medium tracking-wide text-ink-600 uppercase">
                           {parent.name}
                         </p>
                       )}

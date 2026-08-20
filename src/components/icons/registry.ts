@@ -13,6 +13,7 @@ export const icons = {
   chevronDown: 'ph:caret-down-bold',
   check: 'ph:check-bold',
   arrowRight: 'ph:arrow-right',
+  search: 'ph:magnifying-glass-bold',
 } as const;
 
 export type IconName = keyof typeof icons;

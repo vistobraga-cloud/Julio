@@ -1,0 +1,41 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+import SearchPanel from '@components/search/SearchPanel.astro';
+
+import { staticPages } from '@data/staticPages';
+
+const page = staticPages.search;
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Search', path: '/search' },
+];
+---
+
+<BaseLayout
+  title={page.seo.title}
+  description={page.seo.description}
+  whatsappMessage={page.whatsappMessage}
+  breadcrumbs={trail}
+  noindex={true}
+>
+  <div class="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+    <Breadcrumbs trail={trail} />
+  </div>
+
+  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
+    <h1 class="text-3xl leading-tight font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+      {page.h1}
+    </h1>
+
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-700">
+      Type a brand, a material or a problem and it will find the right page — no need to
+      guess whether it lives under services or brands.
+    </p>
+
+    <div class="mt-10">
+      <SearchPanel />
+    </div>
+  </section>
+</BaseLayout>

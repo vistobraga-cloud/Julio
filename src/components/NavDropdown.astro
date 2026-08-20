@@ -1,0 +1,91 @@
+---
+import Icon from '@components/icons/Icon.astro';
+
+/**
+ * A CSS-only nav dropdown: hover or keyboard-focus reveals a panel of
+ * sub-links. Desktop only (used inside Header.astro's `md:flex` row) —
+ * mobile keeps flat links, see the note in Header.astro.
+ *
+ * NOT built on <details>/<summary>, despite that being this project's usual
+ * zero-JS disclosure pattern (src/components/Faq.astro). Verified by hand,
+ * empirically: a closed <details> element's content cannot be revealed by
+ * author CSS. `display: block` from a `:hover`/`:focus-within` rule computes
+ * correctly (getComputedStyle reports it) but the browser still does not
+ * paint or hit-test the content — confirmed with `document.elementFromPoint`,
+ * which kept returning the header behind the panel until the native `open`
+ * attribute was actually set by script. That suppression is not a plain
+ * `display:none` an author rule can win against.
+ *
+ * The show/hide logic below is also NOT done with Tailwind's
+ * `group-hover:`/`group-focus-within:` utilities. Verified by hand: in this
+ * project's Tailwind v4 setup, those conditional utilities did not reliably
+ * win the cascade against the unconditional `invisible`/`opacity-0` base
+ * classes on the same element (a real ordering gotcha, not a typo — v4
+ * wraps variants in `:where()` for specificity-neutrality, which makes
+ * utility *emission order* the tiebreaker instead of source position, and
+ * it did not resolve in the reveal utilities' favor here). Plain CSS in this
+ * component's scoped <style> block sidesteps that entirely: Astro emits
+ * scoped styles unlayered, after Tailwind's own layers, so normal cascade
+ * rules apply and the outcome is not order-dependent.
+ */
+interface Props {
+  label: string;
+  href: string;
+  items: { label: string; href: string }[];
+}
+
+const { label, href, items } = Astro.props;
+---
+
+<div class="nav-dropdown relative inline-block">
+  <a
+    href={href}
+    class="nav-trigger flex items-center gap-1 text-sm font-semibold text-ink-700 transition hover:text-marine-700"
+  >
+    {label}
+    <Icon name="chevronDown" size={14} class="nav-caret transition-transform" />
+  </a>
+
+  <div class="nav-panel absolute left-0 top-full z-40 mt-2 w-64 rounded-xl border border-ink-200 bg-white p-2 shadow-lg">
+    {
+      items.map((item) => (
+        <a
+          href={item.href}
+          class="block rounded-lg px-3 py-2 text-sm text-ink-700 transition hover:bg-paper hover:text-marine-700"
+        >
+          {item.label}
+        </a>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .nav-panel {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease,
+      visibility 150ms ease;
+  }
+
+  .nav-dropdown:hover .nav-panel,
+  .nav-dropdown:focus-within .nav-panel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-dropdown:hover .nav-caret,
+  .nav-dropdown:focus-within .nav-caret {
+    transform: rotate(180deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-panel {
+      transition: none;
+    }
+  }
+</style>

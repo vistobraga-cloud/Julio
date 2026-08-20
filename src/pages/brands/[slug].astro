@@ -50,6 +50,7 @@ const siblings = brand.relatedBrandSlugs
 const trail = [
   { name: 'Home', path: '/' },
   { name: 'Brands', path: '/brands' },
+  { name: brandCategories[brand.category].label, path: `/brands#${brand.category}` },
   { name: brand.name, path: `/brands/${brand.slug}` },
 ];
 
