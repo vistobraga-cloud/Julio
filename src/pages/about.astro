@@ -1,0 +1,183 @@
+---
+import { Picture } from 'astro:assets';
+import portrait from '@assets/placeholders/julio-portrait.jpg';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+import ContactButtons from '@components/ContactButtons.astro';
+import CtaPair from '@components/CtaPair.astro';
+import ProofBar from '@components/ProofBar.astro';
+import Faq from '@components/Faq.astro';
+
+import { business, areaNameList } from '@data/business';
+import { handyman } from '@data/handyman';
+import { staticPages } from '@data/staticPages';
+import { faqPage } from '@lib/schema';
+import type { Faq as FaqItem } from '@data/services';
+
+const page = staticPages.about;
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'About', path: '/about' },
+];
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Is it really just you?',
+    a: 'Yes. One person, ten years. That is a constraint as much as a selling point — I can only be in one place at a time, so I book honestly and I will tell you when the next real opening is rather than promising a day I cannot make.',
+  },
+  {
+    q: 'What kind of work do you take on?',
+    a: 'Furniture and fitness equipment assembly, TV mounting, general handyman work, finish carpentry, custom cabinetry and painting. Seven categories, all of them things I have done for years and can stand behind. If a job sits across two of them, that is one visit rather than two bookings.',
+  },
+  {
+    q: 'What does Top Pro on Thumbtack actually mean?',
+    a: `It is a status Thumbtack awards based on response time, review quality and job volume, reassessed each year. I have held it since ${handyman.socialProof.topProSince}. It is not a qualification — it is evidence that a few hundred customers rated the work well and that I answer people quickly.`,
+  },
+  {
+    q: 'Do you work weekends?',
+    a: `${business.hoursDisplay} Saturdays are genuinely available rather than an exception, which is usually when deliveries land and when people are actually home to let someone in.`,
+  },
+];
+
+const schemaNodes = [faqPage(faqs)];
+---
+
+<BaseLayout
+  title={page.seo.title}
+  description={page.seo.description}
+  whatsappMessage={page.whatsappMessage}
+  schemaNodes={schemaNodes}
+  breadcrumbs={trail}
+>
+  <div class="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+    <Breadcrumbs trail={trail} />
+  </div>
+
+  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
+    <div class="grid gap-10 lg:grid-cols-5 lg:gap-14">
+      <div class="lg:col-span-3">
+        <h1 class="text-3xl leading-tight font-bold tracking-tight text-ink-900 sm:text-4xl">
+          {page.h1}
+        </h1>
+
+        <p class="mt-5 text-lg leading-relaxed text-ink-700">
+          I am {handyman.name}. I run {business.name} on my own out of {business.base.locality},
+          {business.base.region}, and I have been doing this work for {handyman.yearsInBusiness}
+          years.
+        </p>
+
+        <div class="mt-6 space-y-4">
+          {
+            handyman.bio.map((paragraph) => (
+              <p class="leading-relaxed text-ink-700">{paragraph}</p>
+            ))
+          }
+        </div>
+
+        <ContactButtons message={page.whatsappMessage} placement="about-top" class="mt-8" />
+      </div>
+
+      <div class="lg:col-span-2">
+        <Picture
+          src={portrait}
+          alt={`${handyman.name}, owner of ${business.name}`}
+          formats={['avif', 'webp']}
+          widths={[400, 600, 800]}
+          sizes="(min-width: 1024px) 400px, 100vw"
+          loading="eager"
+          class="w-full rounded-xl object-cover shadow-sm"
+        />
+
+        <ul class="mt-6 space-y-2 rounded-xl border border-ink-200 bg-white p-6 text-sm">
+          {
+            handyman.specialties.map((item) => (
+              <li class="flex items-start gap-2.5 text-ink-700">
+                <svg
+                  class="mt-1 h-4 w-4 flex-none text-brand-600"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4l3.8 3.8 6.8-6.8a1 1 0 0 1 1.4 0Z" />
+                </svg>
+                {item}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-ink-200 bg-white">
+    <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900">The record, in numbers</h2>
+      <ProofBar class="mt-8" />
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <div class="grid gap-10 lg:grid-cols-2 lg:gap-16">
+      <div>
+        <h2 class="text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">
+          How I actually work
+        </h2>
+        <p class="mt-4 leading-relaxed text-ink-700">
+          I ask for the model number or a photo of the box before quoting, because that is
+          the only way to know whether something is a forty-minute job or a five-hour one.
+          A quote given without it is a guess, and guesses get corrected upward on the day.
+        </p>
+        <p class="mt-4 leading-relaxed text-ink-700">
+          I would rather turn down a job than take one I cannot do well. If a treadmill
+          will not physically fit up your staircase, I will tell you before you book
+          instead of discovering it with the crate already in your hallway.
+        </p>
+        <p class="mt-4 leading-relaxed text-ink-700">
+          And I clean up. Packaging flattened and taken out, floors as I found them. It is
+          a small thing that says most of what there is to say about how a job was done.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">
+          Where I go
+        </h2>
+        <p class="mt-4 leading-relaxed text-ink-700">
+          {areaNameList}. Being based in {business.base.locality} puts the South Coast,
+          Greater Providence and Bristol County within a short drive, and Boston, the South
+          Shore, Worcester and eastern Connecticut within a normal working trip.
+        </p>
+        <p class="mt-4 leading-relaxed text-ink-700">
+          This is a mobile business. There is no showroom and no office to visit — the van,
+          the tools and I come to you, which is why scheduling honestly matters more here
+          than it would for a shop.
+        </p>
+
+        <div class="mt-6 rounded-xl border border-ink-200 bg-white p-6">
+          <p class="text-sm font-semibold text-ink-900">Payment</p>
+          <p class="mt-2 text-sm leading-relaxed text-ink-600">
+            {business.paymentAccepted.join(', ')}. Settled when the work is finished and
+            you have looked at it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-ink-200 bg-white">
+    <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+      <Faq items={faqs} heading="Fair questions" />
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <CtaPair
+      heading="Talk to me directly"
+      body="No form that goes into a queue. Call or message and you are talking to the person who will be doing the work."
+      message={page.whatsappMessage}
+      placement="page-bottom"
+    />
+  </section>
+</BaseLayout>

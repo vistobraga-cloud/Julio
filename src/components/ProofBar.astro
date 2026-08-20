@@ -1,0 +1,54 @@
+---
+import { handyman } from '@data/handyman';
+import { business } from '@data/business';
+
+/**
+ * Real, checkable social proof.
+ *
+ * The rating and review count are named as Thumbtack figures, because that is
+ * where they were earned. They are deliberately NOT emitted as schema.org
+ * aggregateRating — see the note in src/lib/schema.ts.
+ *
+ * Only what is confirmed: years in business, jobs completed, the rating with
+ * its source named, insured and background checked. Nothing beyond that.
+ */
+interface Props {
+  class?: string;
+  tone?: 'light' | 'dark';
+}
+
+const { class: className = '', tone = 'light' } = Astro.props;
+const proof = handyman.socialProof;
+
+const items = [
+  { value: `${handyman.yearsInBusiness} years`, label: 'in business' },
+  { value: `${proof.jobsCompleted}`, label: 'jobs completed' },
+  { value: `${proof.rating}★`, label: `from ${proof.reviewCount} reviews` },
+  { value: `Top Pro`, label: `since ${proof.topProSince}` },
+];
+
+const valueTone = tone === 'dark' ? 'text-white' : 'text-ink-900';
+const labelTone = tone === 'dark' ? 'text-ink-300' : 'text-ink-600';
+const noteTone = tone === 'dark' ? 'text-ink-400' : 'text-ink-500';
+---
+
+<div class={className}>
+  <dl class="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
+    {
+      items.map((item) => (
+        <div>
+          <dt class={`text-2xl font-bold tracking-tight sm:text-3xl ${valueTone}`}>
+            {item.value}
+          </dt>
+          <dd class={`mt-0.5 text-sm ${labelTone}`}>{item.label}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  <p class={`mt-5 text-sm ${noteTone}`}>
+    Ratings and job count from {proof.platform}. Background checked{
+      business.credentials.insured ? ' and insured' : ''
+    }.
+  </p>
+</div>

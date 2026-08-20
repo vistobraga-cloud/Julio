@@ -1,0 +1,167 @@
+---
+import '../styles/global.css';
+
+import Header from '@components/Header.astro';
+import Footer from '@components/Footer.astro';
+import StickyBar from '@components/StickyBar.astro';
+import Analytics from '@components/Analytics.astro';
+
+import { business } from '@data/business';
+import { validateDataIntegrity } from '@data/index';
+import { buildDescription, canonical, TITLE_MAX, DESCRIPTION_MIN, DESCRIPTION_MAX } from '@lib/seo';
+import {
+  graph,
+  homeAndConstructionBusiness,
+  person,
+  website,
+  breadcrumbs as breadcrumbList,
+} from '@lib/schema';
+import type { Crumb } from '@components/Breadcrumbs.astro';
+
+/**
+ * The single page shell. Every route goes through here, which is what makes
+ * the SEO invariants enforceable rather than aspirational:
+ *
+ *   - exactly one <h1>, owned by the page body, never by this layout
+ *   - canonical built from Astro.site, so the domain is written once
+ *   - title and description validated at build time, not reviewed by hand
+ *   - the business, person and website nodes emitted once per page
+ */
+interface Props {
+  title: string;
+  description: string;
+  /** Prefilled WhatsApp text for this page. Contextual, never generic. */
+  whatsappMessage: string;
+  /** Extra schema.org nodes: Service, FAQPage, and so on. */
+  schemaNodes?: Record<string, unknown>[];
+  breadcrumbs?: Crumb[];
+  /** Absolute or root-relative social image. Defaults to the brand card. */
+  ogImage?: string;
+  /** Set on pages that exist but should not be indexed. */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  whatsappMessage,
+  schemaNodes = [],
+  breadcrumbs = [],
+  ogImage = '/og-default.jpg',
+  noindex = false,
+} = Astro.props;
+
+// Fails the build if two pages target the same keyword or an internal link
+// points at a slug that does not exist.
+validateDataIntegrity();
+
+const site = Astro.site ?? new URL(business.siteUrl);
+const canonicalUrl = canonical(Astro.url.pathname, site);
+const metaDescription = buildDescription(description);
+
+// Catch a bad title or description at build time rather than in a crawl three
+// months later. The 46%-of-pages-over-60-characters finding in the audited
+// predecessor project happened because nothing checked.
+if (import.meta.env.PROD) {
+  if (title.length > TITLE_MAX) {
+    throw new Error(
+      `Title is ${title.length} chars (max ${TITLE_MAX}) on ${Astro.url.pathname}: "${title}"`,
+    );
+  }
+  if (metaDescription.length < DESCRIPTION_MIN || metaDescription.length > DESCRIPTION_MAX) {
+    throw new Error(
+      `Description is ${metaDescription.length} chars (want ${DESCRIPTION_MIN}-${DESCRIPTION_MAX}) ` +
+        `on ${Astro.url.pathname}: "${metaDescription}"`,
+    );
+  }
+}
+
+const nodes: Record<string, unknown>[] = [
+  homeAndConstructionBusiness(),
+  person(),
+  website(),
+  ...schemaNodes,
+];
+
+if (breadcrumbs.length > 1) {
+  nodes.push(breadcrumbList(breadcrumbs));
+}
+
+const gscToken = import.meta.env.PUBLIC_GSC_VERIFICATION ?? '';
+const ogImageUrl = new URL(ogImage, site).href;
+---
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{title}</title>
+    <meta name="description" content={metaDescription} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    {
+      /* DNS TXT verification is the better route — it covers the whole domain
+         and survives a redesign. This tag is the fallback when DNS is not
+         available, and emits nothing when the variable is unset. */
+    }
+    {gscToken && <meta name="google-site-verification" content={gscToken} />}
+
+    {
+      /* One font file, self-hosted, latin subset, preloaded because it paints
+         the LCP text. Never a <link> to Google Fonts. */
+    }
+    <link
+      rel="preload"
+      href="/fonts/inter-latin-variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#4f8f4f" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={business.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={graph(nodes)}
+    />
+
+    <Analytics />
+  </head>
+
+  <body class="has-sticky-bar">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-ink-900 focus:px-4 focus:py-2 focus:text-white"
+    >
+      Skip to content
+    </a>
+
+    <Header />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer />
+    <StickyBar message={whatsappMessage} />
+  </body>
+</html>

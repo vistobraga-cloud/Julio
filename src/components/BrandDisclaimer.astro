@@ -1,0 +1,31 @@
+---
+import { business } from '@data/business';
+import { independenceStatement } from '@data/brands';
+
+/**
+ * The independence statement that every brand page must carry.
+ *
+ * Using someone else's registered mark in a title, a heading and a URL is
+ * lawful nominative fair use, but it depends on the page never implying an
+ * endorsement. This is the other half of that: no logos anywhere, and a plain
+ * statement of independence on every page that names a mark.
+ *
+ * Discreet by design — small, at the foot of the content, in the same grey as
+ * the rest of the fine print. It is a legal requirement, not a sales message,
+ * and it should not compete with the CTA above it.
+ *
+ * scripts/seo-audit.mjs matches this wording verbatim in the built HTML and
+ * fails the build on any /brands/ page missing it, so it cannot be dropped or
+ * quietly softened later.
+ */
+interface Props {
+  trademarks: string[];
+  class?: string;
+}
+
+const { trademarks, class: className = '' } = Astro.props;
+---
+
+<p class={`text-xs leading-relaxed text-ink-500 ${className}`}>
+  {independenceStatement(trademarks, business.name)}
+</p>

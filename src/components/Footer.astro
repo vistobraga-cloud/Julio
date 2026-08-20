@@ -1,0 +1,111 @@
+---
+import { business, areaNameList } from '@data/business';
+import { handyman } from '@data/handyman';
+import { publishedServices } from '@data/services';
+import { telHref, mailtoHref, whatsappHref, phoneDisplay } from '@lib/contact';
+import { footerNav } from '@lib/nav';
+
+/**
+ * Footer. Also the site's NAP block — name, phone and service area rendered
+ * exactly as they must appear in the Google Business Profile, Thumbtack, Yelp
+ * and every other citation. Any divergence between them dilutes the signal,
+ * so all three values come from business.ts and are never retyped.
+ */
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-20 border-t border-ink-200 bg-white">
+  <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+    <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="lg:col-span-2">
+        <p class="text-lg font-bold text-ink-900">{business.name}</p>
+        <p class="mt-3 max-w-sm leading-relaxed text-ink-600">
+          {handyman.name} — {handyman.jobTitle}. {handyman.yearsInBusiness} years, one person,
+          every job start to finish.
+        </p>
+
+        <div class="mt-5 space-y-1.5 text-sm">
+          <p>
+            <a
+              href={telHref}
+              data-cta-placement="footer"
+              class="font-semibold text-marine-700 hover:underline">{phoneDisplay}</a
+            >
+            <span class="text-ink-500"> · call or text</span>
+          </p>
+          <p>
+            <a
+              href={whatsappHref('Hi Julio, I found your site and I have a question:')}
+              data-cta-placement="footer"
+              rel="noopener"
+              class="font-semibold text-marine-700 hover:underline">WhatsApp</a
+            >
+          </p>
+          <p>
+            <a
+              href={mailtoHref}
+              data-cta-placement="footer"
+              class="text-ink-600 hover:underline">{business.email}</a
+            >
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-sm font-bold tracking-wide text-ink-900 uppercase">Services</h2>
+        <ul class="mt-4 space-y-2.5 text-sm">
+          {
+            publishedServices.map((service) => (
+              <li>
+                <a
+                  href={`/services/${service.slug}`}
+                  class="text-ink-600 transition hover:text-marine-700"
+                >
+                  {service.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="text-sm font-bold tracking-wide text-ink-900 uppercase">Company</h2>
+        <ul class="mt-4 space-y-2.5 text-sm">
+          {
+            footerNav.map((item) => (
+              <li>
+                <a href={item.href} class="text-ink-600 transition hover:text-marine-700">
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <h2 class="mt-8 text-sm font-bold tracking-wide text-ink-900 uppercase">Hours</h2>
+        <p class="mt-3 text-sm leading-relaxed text-ink-600">{business.hoursDisplay}</p>
+      </div>
+    </div>
+
+    <div class="mt-12 border-t border-ink-200 pt-8">
+      <p class="text-sm leading-relaxed text-ink-600">
+        Serving {areaNameList}. Based in {business.base.locality}, {business.base.region} —
+        mobile service, no showroom.
+      </p>
+      <p class="mt-2 text-sm text-ink-500">
+        Payment accepted: {business.paymentAccepted.join(', ')}.
+      </p>
+
+      <div
+        class="mt-6 flex flex-col gap-2 text-sm text-ink-500 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <p>© {year} {business.name}. All rights reserved.</p>
+        <p class="flex gap-5">
+          <a href="/privacy-policy" class="hover:text-marine-700">Privacy</a>
+          <a href="/terms" class="hover:text-marine-700">Terms</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>

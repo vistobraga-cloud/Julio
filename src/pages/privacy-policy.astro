@@ -1,0 +1,114 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+
+import { business } from '@data/business';
+import { staticPages } from '@data/staticPages';
+import { mailtoHref, telHref, phoneDisplay } from '@lib/contact';
+
+const page = staticPages.privacy;
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Privacy Policy', path: '/privacy-policy' },
+];
+
+const updated = 'August 2026';
+---
+
+<BaseLayout
+  title={page.seo.title}
+  description={page.seo.description}
+  whatsappMessage={page.whatsappMessage}
+  breadcrumbs={trail}
+>
+  <div class="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
+    <Breadcrumbs trail={trail} />
+  </div>
+
+  <article class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:py-14">
+    <h1 class="text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">{page.h1}</h1>
+    <p class="mt-3 text-sm text-ink-500">Last updated {updated}</p>
+
+    <div class="mt-8 space-y-8">
+      <section>
+        <h2 class="text-xl font-bold text-ink-900">What this covers</h2>
+        <p class="mt-3 leading-relaxed text-ink-700">
+          {business.name} is a one-person business run by Julio Oliveira from
+          {business.base.locality}, {business.base.region}. This page explains what happens
+          to information you give us, and what the website itself collects.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-ink-900">Information you give us</h2>
+        <p class="mt-3 leading-relaxed text-ink-700">
+          When you call, text, message on WhatsApp or email, we receive whatever you send:
+          typically your name, phone number, the address where the work is happening, and
+          details about the job. That information is used to quote the work, schedule it
+          and carry it out. Nothing more.
+        </p>
+        <p class="mt-3 leading-relaxed text-ink-700">
+          We do not sell it, rent it or share it with marketing companies. It is not added
+          to any mailing list. Job records are kept for as long as they are useful for
+          warranty questions, repeat work and tax records, and are deleted after that.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-ink-900">Information the site collects</h2>
+        <p class="mt-3 leading-relaxed text-ink-700">
+          This site uses Google Analytics to count visits and see which pages people find
+          useful. It records things like the pages you view, roughly where you are (city
+          level), your device type, and whether you tapped a call or WhatsApp button. It
+          does not record your name, your number or anything you type.
+        </p>
+        <p class="mt-3 leading-relaxed text-ink-700">
+          There is no advertising network on this site, no remarketing pixel and no
+          third-party tracker beyond that analytics measurement. Google's own handling of
+          the data it collects is governed by their privacy policy.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-ink-900">Hosting</h2>
+        <p class="mt-3 leading-relaxed text-ink-700">
+          The site is hosted by Vercel, which keeps standard server logs including IP
+          addresses for security and abuse prevention. Those logs are not used for
+          marketing and are not linked to any customer record.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-ink-900">Your choices</h2>
+        <p class="mt-3 leading-relaxed text-ink-700">
+          You can ask what information we hold about you, ask for it to be corrected, or
+          ask for it to be deleted. Just get in touch and say so — there is no form and no
+          process to go through. Browser-level Do Not Track and script blocking are
+          respected; nothing on this site tries to work around them.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-ink-900">Children</h2>
+        <p class="mt-3 leading-relaxed text-ink-700">
+          This site is not directed at children under 13 and we do not knowingly collect
+          information from them.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-ink-900">Contact</h2>
+        <p class="mt-3 leading-relaxed text-ink-700">
+          Questions about any of this go straight to Julio:
+          <a href={telHref} class="font-semibold text-marine-700 hover:underline"
+            >{phoneDisplay}</a
+          >
+          or
+          <a href={mailtoHref} class="font-semibold text-marine-700 hover:underline"
+            >{business.email}</a
+          >.
+        </p>
+      </section>
+    </div>
+  </article>
+</BaseLayout>

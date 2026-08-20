@@ -1,0 +1,25 @@
+---
+import { business } from '@data/business';
+import ContactButtons from './ContactButtons.astro';
+
+/**
+ * The closing CTA band. One per page, at the end, with copy written for that
+ * page rather than a single sentence reused site-wide.
+ */
+interface Props {
+  message: string;
+  placement: string;
+  heading: string;
+  body: string;
+  class?: string;
+}
+
+const { message, placement, heading, body, class: className = '' } = Astro.props;
+---
+
+<section class={`rounded-xl bg-ink-900 px-6 py-10 sm:px-10 sm:py-12 ${className}`}>
+  <h2 class="max-w-2xl text-2xl font-bold text-white sm:text-3xl">{heading}</h2>
+  <p class="mt-3 max-w-2xl leading-relaxed text-ink-200">{body}</p>
+  <ContactButtons message={message} placement={placement} tone="dark" class="mt-7" />
+  <p class="mt-5 text-sm text-ink-300">{business.hoursDisplay}</p>
+</section>

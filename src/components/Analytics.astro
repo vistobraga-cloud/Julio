@@ -1,0 +1,95 @@
+---
+/**
+ * GA4 plus conversion-click tracking.
+ *
+ * Nothing is emitted until PUBLIC_GA4_ID exists, so the site builds and runs
+ * with no analytics account at all. The click listener is installed either
+ * way and buffers into dataLayer, which means events fired before gtag.js has
+ * finished loading are still delivered once it does.
+ *
+ * gtag.js is roughly 50KB of third-party JavaScript. Loading it in the head
+ * would spend the site's Core Web Vitals budget on measurement, so it loads
+ * after the page is idle, or on the first pointer or key interaction —
+ * whichever happens first. That ordering matters: it guarantees the script is
+ * already in flight before anyone can reach a call or WhatsApp button.
+ */
+const gaId = import.meta.env.PUBLIC_GA4_ID ?? '';
+---
+
+<script is:inline define:vars={{ gaId }}>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  window.gtag = gtag;
+
+  /* ---- conversion clicks ------------------------------------------------ */
+  /* Phone, WhatsApp, SMS and email are the only conversions this site has.
+     Without these events there is no way, three months from now, to tell
+     which of the pages actually produced work. */
+
+  var METHODS = [
+    { test: function (h) { return h.indexOf('tel:') === 0; }, method: 'phone' },
+    { test: function (h) { return h.indexOf('sms:') === 0; }, method: 'sms' },
+    { test: function (h) { return h.indexOf('mailto:') === 0; }, method: 'email' },
+    { test: function (h) { return h.indexOf('wa.me') !== -1; }, method: 'whatsapp' },
+  ];
+
+  document.addEventListener(
+    'click',
+    function (event) {
+      var target = event.target;
+      var link = target && target.closest ? target.closest('a[href]') : null;
+      if (!link) return;
+
+      var href = link.getAttribute('href') || '';
+
+      for (var i = 0; i < METHODS.length; i++) {
+        if (!METHODS[i].test(href)) continue;
+
+        gtag('event', 'contact_click', {
+          method: METHODS[i].method,
+          link_url: href,
+          page_path: window.location.pathname,
+          /* Which control was pressed: sticky bar, hero, footer, FAQ block.
+             Tells us where on the page people actually convert. */
+          placement: link.getAttribute('data-cta-placement') || 'unknown',
+          transport_type: 'beacon',
+        });
+        return;
+      }
+    },
+    true,
+  );
+
+  /* ---- deferred loader -------------------------------------------------- */
+
+  if (gaId) {
+    var loaded = false;
+
+    function loadGa() {
+      if (loaded) return;
+      loaded = true;
+
+      gtag('js', new Date());
+      gtag('config', gaId, { send_page_view: true });
+
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+      document.head.appendChild(script);
+    }
+
+    ['pointerdown', 'keydown', 'touchstart'].forEach(function (type) {
+      window.addEventListener(type, loadGa, { once: true, passive: true });
+    });
+
+    window.addEventListener('load', function () {
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(loadGa, { timeout: 4000 });
+      } else {
+        setTimeout(loadGa, 2500);
+      }
+    });
+  }
+</script>

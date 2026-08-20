@@ -1,0 +1,48 @@
+---
+import { whatsappHref } from '@lib/contact';
+import { BOOK_PATH } from '@lib/nav';
+
+/**
+ * Mobile-only sticky action bar.
+ *
+ * Phones are the majority of traffic for this kind of search, and the visitor
+ * is usually standing next to the box they need assembled. The bar keeps
+ * booking and WhatsApp one thumb-reach away at any scroll depth.
+ *
+ * Hidden from md up, where the header CTA is already visible.
+ */
+interface Props {
+  message: string;
+}
+
+const { message } = Astro.props;
+---
+
+<div
+  class="fixed inset-x-0 bottom-0 z-40 border-t border-ink-200 bg-white/95 backdrop-blur-sm md:hidden"
+  style="padding-bottom: env(safe-area-inset-bottom)"
+>
+  <div class="grid grid-cols-3 gap-2 p-2">
+    <a
+      href={BOOK_PATH}
+      data-cta-placement="sticky-bar"
+      class="col-span-2 inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-3 text-base font-semibold text-white"
+    >
+      Book Now
+    </a>
+
+    <a
+      href={whatsappHref(message)}
+      data-cta-placement="sticky-bar"
+      rel="noopener"
+      class="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-marine-700 px-3 py-3 text-sm font-semibold text-marine-700"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path
+          d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2Zm5.8 14.2c-.2.7-1.2 1.3-2 1.4-.5.1-1.2.1-3.9-1-3.3-1.4-5.4-4.7-5.6-4.9-.2-.2-1.3-1.8-1.3-3.4S5.8 6 6.2 5.6c.3-.3.6-.4.8-.4h.6c.2 0 .5 0 .7.5l1 2.4c.1.2.1.4 0 .6l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.4 1.8 2.3 1.2 1.1 2.2 1.4 2.5 1.6.3.1.5.1.6-.1l.9-1c.2-.2.4-.2.6-.1l2.3 1.1c.3.2.5.2.6.4.1.1.1.7-.1 1.4Z"
+        ></path>
+      </svg>
+      Chat
+    </a>
+  </div>
+</div>

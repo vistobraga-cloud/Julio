@@ -1,0 +1,221 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+import Faq from '@components/Faq.astro';
+
+import { business, areaNameList } from '@data/business';
+import { handyman } from '@data/handyman';
+import { publishedServices } from '@data/services';
+import { staticPages } from '@data/staticPages';
+import { telHref, smsHref, whatsappHref, mailtoHref, phoneDisplay } from '@lib/contact';
+import { BOOK_PATH } from '@lib/nav';
+import { faqPage } from '@lib/schema';
+import type { Faq as FaqItem } from '@data/services';
+
+const page = staticPages.contact;
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Contact', path: '/contact' },
+];
+
+const faqs: FaqItem[] = [
+  {
+    q: 'What should I include in the first message?',
+    a: 'Three things get you a firm answer straight away: what the item is (product name, or a photo of the box label), which town you are in, and whether it is going upstairs. Everything else can be sorted out on the day.',
+  },
+  {
+    q: 'How quickly do you reply?',
+    a: 'Usually within a couple of hours during working hours, often much faster. If I am on a job with tools running I will not pick up, but a WhatsApp message or a text gets answered as soon as I stop.',
+  },
+  {
+    q: 'Do you give quotes over the phone?',
+    a: 'For assembly and mounting, yes — once I know the model, the price is predictable and I will give you a firm number. Carpentry and cabinetry usually need me to see the space, because how far out of square a room is changes the work considerably.',
+  },
+];
+
+const schemaNodes = [faqPage(faqs)];
+---
+
+<BaseLayout
+  title={page.seo.title}
+  description={page.seo.description}
+  whatsappMessage={page.whatsappMessage}
+  schemaNodes={schemaNodes}
+  breadcrumbs={trail}
+>
+  <div class="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+    <Breadcrumbs trail={trail} />
+  </div>
+
+  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
+    <div class="grid gap-12 lg:grid-cols-5 lg:gap-16">
+      <div class="lg:col-span-3">
+        <h1 class="text-3xl leading-tight font-bold tracking-tight text-ink-900 sm:text-4xl">
+          {page.h1}
+        </h1>
+
+        <p class="mt-5 text-lg leading-relaxed text-ink-700">
+          You will be talking to {handyman.name} — not a call center, not a dispatcher.
+          Pick whichever of these you actually use.
+        </p>
+
+        <div class="mt-8 space-y-3">
+          <a
+            href={telHref}
+            data-cta-placement="contact-primary"
+            class="flex items-center gap-4 rounded-xl bg-brand-600 px-5 py-4 text-white transition hover:bg-brand-700"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.4.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .8-.2 1l-2.3 2.2Z"
+              ></path>
+            </svg>
+            <span>
+              <span class="block text-lg font-bold">{phoneDisplay}</span>
+              <span class="block text-sm text-white/85">Call — fastest way to book</span>
+            </span>
+          </a>
+
+          <a
+            href={whatsappHref(page.whatsappMessage)}
+            data-cta-placement="contact-primary"
+            rel="noopener"
+            class="flex items-center gap-4 rounded-xl border-2 border-marine-700 px-5 py-4 text-marine-700 transition hover:bg-marine-700 hover:text-white"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2Zm5.8 14.2c-.2.7-1.2 1.3-2 1.4-.5.1-1.2.1-3.9-1-3.3-1.4-5.4-4.7-5.6-4.9-.2-.2-1.3-1.8-1.3-3.4S5.8 6 6.2 5.6c.3-.3.6-.4.8-.4h.6c.2 0 .5 0 .7.5l1 2.4c.1.2.1.4 0 .6l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.4 1.8 2.3 1.2 1.1 2.2 1.4 2.5 1.6.3.1.5.1.6-.1l.9-1c.2-.2.4-.2.6-.1l2.3 1.1c.3.2.5.2.6.4.1.1.1.7-.1 1.4Z"
+              ></path>
+            </svg>
+            <span>
+              <span class="block text-lg font-bold">WhatsApp</span>
+              <span class="block text-sm opacity-80">Best for sending a photo of the box</span>
+            </span>
+          </a>
+
+          <div class="grid gap-3 sm:grid-cols-2">
+            <a
+              href={smsHref(page.whatsappMessage)}
+              data-cta-placement="contact-secondary"
+              class="rounded-xl border border-ink-200 bg-white px-5 py-4 transition hover:border-marine-300"
+            >
+              <span class="block font-bold text-ink-900">Text message</span>
+              <span class="mt-1 block text-sm text-ink-600">Same number, plain SMS</span>
+            </a>
+
+            <a
+              href={mailtoHref}
+              data-cta-placement="contact-secondary"
+              class="rounded-xl border border-ink-200 bg-white px-5 py-4 transition hover:border-marine-300"
+            >
+              <span class="block font-bold text-ink-900">Email</span>
+              <span class="mt-1 block text-sm break-all text-ink-600">{business.email}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <aside class="lg:col-span-2">
+        <div class="rounded-xl border border-ink-200 bg-white p-6">
+          <h2 class="font-bold text-ink-900">Hours</h2>
+          <p class="mt-2 text-sm leading-relaxed text-ink-600">{business.hoursDisplay}</p>
+
+          <h2 class="mt-6 font-bold text-ink-900">Service area</h2>
+          <p class="mt-2 text-sm leading-relaxed text-ink-600">
+            {areaNameList}. Based in {business.base.locality}, {business.base.region}.
+            Mobile service — there is no showroom to visit.
+          </p>
+
+          <h2 class="mt-6 font-bold text-ink-900">Payment</h2>
+          <p class="mt-2 text-sm leading-relaxed text-ink-600">
+            {business.paymentAccepted.join(', ')}.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Kept as an anchor: older links and any printed material point at #request. -->
+  <section id="request" class="border-y border-ink-200 bg-white scroll-mt-24">
+    <div class="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">
+        Requesting a job
+      </h2>
+      <p class="mt-4 leading-relaxed text-ink-700">
+        The quickest route is the <a
+          href={BOOK_PATH}
+          class="font-semibold text-marine-700 hover:underline">four-step booking form</a
+        > — it walks through everything below and hands you the finished request to send. If you
+        would rather just message me, send these four things and you will have a price and a
+        time slot in the same conversation.
+      </p>
+
+      <ol class="mt-6 space-y-3">
+        {
+          [
+            'What it is — product name, or a photo of the box label.',
+            'Where it is going — room, floor, and whether there are stairs.',
+            'Your town.',
+            'Days and times that suit you.',
+          ].map((item, index) => (
+            <li class="flex gap-4 rounded-lg border border-ink-200 p-4">
+              <span class="inline-flex h-7 w-7 flex-none items-center justify-center rounded-full bg-ink-900 text-sm font-bold text-white">
+                {index + 1}
+              </span>
+              <span class="leading-relaxed text-ink-700">{item}</span>
+            </li>
+          ))
+        }
+      </ol>
+
+      <p class="mt-6 text-sm text-ink-500">
+        I confirm requested times personally, usually within a couple of hours.
+      </p>
+
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+        <a
+          href={BOOK_PATH}
+          data-cta-placement="request-block"
+          class="inline-flex items-center justify-center rounded-lg bg-brand-600 px-6 py-3.5 font-semibold text-white transition hover:bg-brand-700"
+        >
+          Use the booking form
+        </a>
+        <a
+          href={whatsappHref(page.whatsappMessage)}
+          data-cta-placement="request-block"
+          rel="noopener"
+          class="inline-flex items-center justify-center rounded-lg border-2 border-marine-700 px-6 py-3.5 font-semibold text-marine-700 transition hover:bg-marine-700 hover:text-white"
+        >
+          Send the details on WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+    <h2 class="text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">
+      Or start from the service you need
+    </h2>
+    <ul class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        publishedServices.map((service) => (
+          <li>
+            <a
+              href={`/services/${service.slug}`}
+              class="block rounded-lg border border-ink-200 bg-white px-4 py-3 font-medium text-ink-800 transition hover:border-marine-300 hover:text-marine-700"
+            >
+              {service.name}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="border-t border-ink-200 bg-white">
+    <div class="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      <Faq items={faqs} heading="Getting a fast answer" />
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,16 @@
+# Normalize line endings in the repo, check out native on each platform.
+# Without this, a Windows working copy commits CRLF and every file looks
+# rewritten the first time someone edits it on macOS or in CI.
+* text=auto eol=lf
+
+# Binary assets — never touch these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.avif binary
+*.webp binary
+*.woff2 binary
+*.ico binary
+
+# Generated, and noisy in review.
+package-lock.json linguist-generated=true -diff

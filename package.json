@@ -1,0 +1,38 @@
+{
+  "name": "aplus-assemblers",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build && node scripts/seo-audit.mjs",
+    "build:only": "astro build",
+    "audit": "node scripts/seo-audit.mjs",
+    "placeholders": "node scripts/make-placeholders.mjs",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro",
+    "brand": "node scripts/make-brand-assets.mjs"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.4.0",
+    "@astrojs/sitemap": "^3.6.0",
+    "@fontsource-variable/inter": "^5.2.6",
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "astro": "^5.14.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tailwindcss": "^4.1.14",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.5",
+    "typescript": "^5.9.3"
+  }
+}

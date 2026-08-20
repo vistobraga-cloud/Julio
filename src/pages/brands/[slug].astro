@@ -1,0 +1,282 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { Picture } from 'astro:assets';
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumbs from '@components/Breadcrumbs.astro';
+import ContactButtons from '@components/ContactButtons.astro';
+import CtaPair from '@components/CtaPair.astro';
+import Faq from '@components/Faq.astro';
+import BrandDisclaimer from '@components/BrandDisclaimer.astro';
+
+import { business, areaNameList } from '@data/business';
+import { handyman } from '@data/handyman';
+import { getService } from '@data/services';
+import { publishedBrands, getBrand, brandCategories, type Brand } from '@data/brands';
+import { faqPage, service as serviceNode } from '@lib/schema';
+
+/**
+ * One page per brand.
+ *
+ * Two trademark rules are structural here rather than remembered:
+ *
+ *   1. The illustration is the PARENT SERVICE's generic photograph, keyed on
+ *      parentServiceSlug. No asset is ever named after a brand, and no brand
+ *      logo appears anywhere. The audit fails the build if an asset filename
+ *      contains a trademark token.
+ *
+ *   2. <BrandDisclaimer> renders on every one of these pages. The audit
+ *      matches its wording in the built HTML and rejects a brand page without
+ *      it.
+ */
+export const getStaticPaths: GetStaticPaths = () =>
+  publishedBrands.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { brand: entry },
+  }));
+
+interface Props {
+  brand: Brand;
+}
+
+const { brand } = Astro.props;
+
+const parent = getService(brand.parentServiceSlug);
+const siblings = brand.relatedBrandSlugs
+  .map((slug) => getBrand(slug))
+  .filter((entry): entry is Brand => entry !== undefined && entry.published);
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Brands', path: '/brands' },
+  { name: brand.name, path: `/brands/${brand.slug}` },
+];
+
+const pageUrl = new URL(`/brands/${brand.slug}`, Astro.site ?? business.siteUrl).href;
+
+const schemaNodes = [
+  serviceNode({
+    name: `${brand.name} assembly`,
+    description: brand.seo.description,
+    url: pageUrl,
+    serviceType: parent?.name ?? 'Assembly',
+  }),
+  faqPage(brand.faq),
+];
+
+// Keyed on the parent SERVICE, never the brand — see the note above.
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/placeholders/*.jpg',
+  { eager: true },
+);
+const heroImage = images[`/src/assets/placeholders/${brand.parentServiceSlug}.jpg`]?.default;
+---
+
+<BaseLayout
+  title={brand.seo.title}
+  description={brand.seo.description}
+  whatsappMessage={brand.whatsappMessage}
+  schemaNodes={schemaNodes}
+  breadcrumbs={trail}
+>
+  <div class="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+    <Breadcrumbs trail={trail} />
+  </div>
+
+  <!-- Opening -->
+  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14">
+    <div class="grid gap-10 lg:grid-cols-5 lg:gap-14">
+      <div class="lg:col-span-3">
+        <p class="text-sm font-semibold tracking-wide text-marine-700 uppercase">
+          {brandCategories[brand.category].label}
+        </p>
+
+        <h1 class="mt-3 text-3xl leading-tight font-bold tracking-tight text-ink-900 sm:text-4xl">
+          {brand.h1}
+        </h1>
+
+        <div class="mt-6 space-y-4">
+          {brand.intro.map((paragraph) => (
+            <p class="leading-relaxed text-ink-700">{paragraph}</p>
+          ))}
+        </div>
+
+        <ContactButtons message={brand.whatsappMessage} placement="brand-top" class="mt-8" />
+        <p class="mt-4 text-sm text-ink-500">{business.hoursDisplay}</p>
+      </div>
+
+      <div class="lg:col-span-2">
+        {
+          heroImage && (
+            <Picture
+              src={heroImage}
+              alt={`${parent?.name ?? 'Assembly'} work carried out by ${handyman.name}`}
+              formats={['avif', 'webp']}
+              widths={[400, 600, 800]}
+              sizes="(min-width: 1024px) 400px, 100vw"
+              fetchpriority="high"
+              loading="eager"
+              class="w-full rounded-xl object-cover shadow-sm"
+            />
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Model lines -->
+  <section class="border-y border-ink-200 bg-white">
+    <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-16">
+      <h2 class="text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">
+        What I see most from {brand.name}
+      </h2>
+
+      <div class="mt-8 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          brand.modelLines.map((line) => (
+            <div>
+              <h3 class="font-bold text-ink-900">{line.name}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-600">{line.note}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- What is different -->
+  <section class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-16">
+    <div class="grid gap-10 lg:grid-cols-5 lg:gap-14">
+      <div class="lg:col-span-3">
+        <h2 class="text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">
+          What makes this build different
+        </h2>
+
+        <ul class="mt-6 space-y-5">
+          {
+            brand.assemblyNotes.map((note) => (
+              <li class="flex gap-4">
+                <span
+                  aria-hidden="true"
+                  class="mt-2 h-2 w-2 flex-none rounded-full bg-brand-600"
+                />
+                <p class="leading-relaxed text-ink-700">{note}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="lg:col-span-2">
+        <div class="rounded-xl border border-ink-200 bg-white p-6">
+          <h2 class="font-bold text-ink-900">Realistic timings</h2>
+          <dl class="mt-4 space-y-3">
+            {
+              brand.timeRanges.map((entry) => (
+                <div>
+                  <dt class="text-sm font-semibold text-ink-800">{entry.item}</dt>
+                  <dd class="text-sm text-ink-600">{entry.range}</dd>
+                </div>
+              ))
+            }
+          </dl>
+          <p class="mt-4 text-xs leading-relaxed text-ink-500">
+            Ranges, not promises. The width, the door type and the staircase move these more
+            than the brand does.
+          </p>
+        </div>
+
+        <div class="mt-6 rounded-xl bg-ink-50 p-6">
+          <h2 class="font-bold text-ink-900">Have this ready</h2>
+          <ul class="mt-4 space-y-3">
+            {
+              brand.whatToHaveReady.map((item) => (
+                <li class="flex gap-3 text-sm leading-relaxed text-ink-700">
+                  <svg
+                    class="mt-1 h-4 w-4 flex-none text-brand-600"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 1 1 1.4-1.4l3.8 3.8 6.8-6.8a1 1 0 0 1 1.4 0Z" />
+                  </svg>
+                  {item}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Parent service and siblings -->
+  <section class="border-y border-ink-200 bg-white">
+    <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+      <div class="grid gap-8 lg:grid-cols-3 lg:gap-12">
+        {
+          parent && (
+            <div>
+              <h2 class="text-lg font-bold text-ink-900">The service this sits under</h2>
+              <a
+                href={`/services/${parent.slug}`}
+                class="mt-4 block rounded-xl border border-ink-200 p-5 transition hover:border-marine-300"
+              >
+                <span class="font-bold text-ink-900">{parent.name}</span>
+                <span class="mt-2 block text-sm leading-relaxed text-ink-600">
+                  {parent.seo.description}
+                </span>
+              </a>
+            </div>
+          )
+        }
+
+        {
+          siblings.length > 0 && (
+            <div class="lg:col-span-2">
+              <h2 class="text-lg font-bold text-ink-900">Also common in this category</h2>
+              <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                {siblings.map((entry) => (
+                  <a
+                    href={`/brands/${entry.slug}`}
+                    class="block rounded-xl border border-ink-200 p-5 transition hover:border-marine-300"
+                  >
+                    <span class="font-bold text-ink-900">{entry.name}</span>
+                    <span class="mt-2 block text-sm leading-relaxed text-ink-600">
+                      {entry.seo.description}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )
+        }
+      </div>
+
+      <p class="mt-10 text-sm leading-relaxed text-ink-600">
+        Covering {areaNameList}, from a base in {business.base.locality},
+        {business.base.region}.
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:py-16">
+    <Faq items={brand.faq} heading={`${brand.name}: questions I get asked`} />
+  </section>
+
+  <!-- CTA -->
+  <section class="mx-auto max-w-6xl px-4 pb-10 sm:px-6">
+    <CtaPair
+      heading={brand.cta.heading}
+      body={brand.cta.body}
+      message={brand.whatsappMessage}
+      placement="page-bottom"
+    />
+  </section>
+
+  <!-- Trademark position. Required on every brand page; audit-enforced. -->
+  <section class="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+    <BrandDisclaimer trademarks={brand.trademarks} class="max-w-3xl" />
+  </section>
+</BaseLayout>
